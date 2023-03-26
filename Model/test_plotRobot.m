@@ -17,10 +17,12 @@ geom_robot.bx = @(X) geom_robot.b0 - ((geom_robot.b0 - geom_robot.b)/geom_robot.
 
 syms X real
 
-%% Actuator Design
+%% Actuator Design: Soluzione 1
+
+%% Actuator Design: Soluzione 2
 % Robotics Actuators: 8 cables (2 proposta)
-% na = 8;
-% actuation_path = sym(zeros(3, na));
+na = 8;
+
 % Long. Cables
 actuation_path(:, 1) = [0; geom_robot.b0 - ((geom_robot.b0 - geom_robot.b)/geom_robot.L)*X; X];
 actuation_path(:, 2) = [0; -geom_robot.b0 + ((geom_robot.b0 - geom_robot.b)/geom_robot.L)*X; X];
@@ -28,16 +30,21 @@ actuation_path(:, 3) = [geom_robot.a0 - ((geom_robot.a0 - geom_robot.a)/geom_rob
 actuation_path(:, 4) = [-geom_robot.a0 + ((geom_robot.a0 - geom_robot.a)/geom_robot.L)*X; 0; X];
 
 % Oblique Cables
-% actuation_path(:, 5) = [0; geom_robot.b0 - ((geom_robot.b0 - geom_robot.b)/geom_robot.L)*X; X];
+actuation_path(:, 5) = ellipticHelix(geom_robot, X, -pi, 0);
+actuation_path(:, 6) = ellipticHelix(geom_robot, X, pi, 0);
+actuation_path(:, 7) = ellipticHelix(geom_robot, X, -pi, pi);
+actuation_path(:, 8) = ellipticHelix(geom_robot, X, pi, pi);
 
+cable_class = ["l", "l", "l", "l", "ocw", "occw", "ocw", "occw"];
 
-% % Test Helicoidals
-% actuation_path(:, 1) = [geom_robot.ax*cos(2*pi*X); geom_robot.bx*sin(2*pi*X); X];
-% actuation_path(:, 2) = [geom_robot.ax*cos(2*pi*X + 2*pi/3); geom_robot.bx*sin(2*pi*X + 2*pi/3); X];
-% actuation_path(:, 3) = [geom_robot.ax*cos(2*pi*X - 2*pi/3); geom_robot.bx*sin(2*pi*X - 2*pi/3); X];
-
-plotRobotq0(geom_robot, actuation_path, 1000)
+%% Plot Robot
+plotRobotq0(geom_robot, actuation_path, 100, cable_class, true)
 
 %% Evaluation of Strain Modes
-[xi, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, 1, [1, 1, 1, 1]');
-prettyStrainPlot(xi)
+% [xi, ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, geom_robot.L, ones(na, 1));
+% prettyStrainPlot(xi)
+
+%% Util Functions
+function points = ellipticHelix(geom_struct, X, theta, phase)
+    points = [geom_struct.ax*cos(theta*(X/geom_struct.L) + phase); geom_struct.bx*sin(theta*(X/geom_struct.L) + phase); X];
+end
