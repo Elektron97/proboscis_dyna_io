@@ -26,32 +26,33 @@ syms X real
 % plotRobotq0(geom_robot, actuation_path, n_points)
 
 %% Actuator Design: Soluzione 1
-% % Bio-inspired Actuators: 7 cables (1 proposta)
-% na = 7;
-% 
-% %%% Long. Cables %%%
-% actuation_path(:, 1) = [0; geom_robot.b0 - ((geom_robot.b0 - geom_robot.b)/geom_robot.L)*X; X];
-% 
-% % 30 degrees long cable
-% p1 = [-geom_robot.a0*cos(pi/6); geom_robot.b0*sin(pi/6); 0];
-% p2 = [-geom_robot.a*cos(pi/6); geom_robot.b*sin(pi/6); geom_robot.L];
-% actuation_path(:, 2) = p1 + X*((p2 - p1)/geom_robot.L);
-% 
-% % 150 degrees long cable
-% p3 = [geom_robot.a0*cos(pi/6); geom_robot.b0*sin(pi/6); 0];
-% p4 = [geom_robot.a*cos(pi/6); geom_robot.b*sin(pi/6); geom_robot.L];
-% actuation_path(:, 3) = p3 + X*((p4 - p3)/geom_robot.L);
-% 
-% %%% Curv. Cables %%%
-% actuation_path(:, 4) = ellipticHelix(geom_robot, X, -pi/2, 0);
-% actuation_path(:, 5) = ellipticHelix(geom_robot, X, -pi/2, -pi/2);
-% actuation_path(:, 6) = ellipticHelix(geom_robot, X, pi/2, pi);
-% actuation_path(:, 7) = ellipticHelix(geom_robot, X, pi/2, 1.5*pi);
-% 
-% cable_class = ["l", "l", "l", "ocw", "ocw", "occw", "occw"];
-% 
-% %% Plot Robot
-% plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
+% Bio-inspired Actuators: 7 cables (1 proposta)
+na = 7;
+
+%%% Long. Cables %%%
+actuation_path(:, 1) = [0; geom_robot.b0 - ((geom_robot.b0 - geom_robot.b)/geom_robot.L)*X; X];
+
+% 30 degrees long cable
+p1 = [-geom_robot.a0*cos(pi/6); geom_robot.b0*sin(pi/6); 0];
+p2 = [-geom_robot.a*cos(pi/6); geom_robot.b*sin(pi/6); geom_robot.L];
+actuation_path(:, 2) = p1 + X*((p2 - p1)/geom_robot.L);
+
+% 150 degrees long cable
+p3 = [geom_robot.a0*cos(pi/6); geom_robot.b0*sin(pi/6); 0];
+p4 = [geom_robot.a*cos(pi/6); geom_robot.b*sin(pi/6); geom_robot.L];
+actuation_path(:, 3) = p3 + X*((p4 - p3)/geom_robot.L);
+
+%%% Curv. Cables %%%
+actuation_path(:, 4) = ellipticHelix(geom_robot, X, -pi/2, 0);
+actuation_path(:, 5) = ellipticHelix(geom_robot, X, -pi/2, -pi/2);
+actuation_path(:, 6) = ellipticHelix(geom_robot, X, pi/2, pi);
+actuation_path(:, 7) = ellipticHelix(geom_robot, X, pi/2, 1.5*pi);
+
+cable_class = ["l", "l", "l", "ocw", "ocw", "occw", "occw"];
+% cable_class = ["l", " ", "l", "ocw", " ", "occw", "occw"];
+
+%% Plot Robot
+plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
 
 %% Actuator Design: Soluzione 2
 % % Robotics Actuators: 8 cables (2 proposta)
@@ -97,7 +98,8 @@ syms X real
 
 %% Evaluation of Strain Modes
 % [xi, ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, geom_robot.L, ones(na, 1));
-% prettyStrainPlot(xi)
+[xi, ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, geom_robot.L, [1 1 1, 1 1 1 1]');
+prettyStrainPlot(xi)
 
 %% Util Functions
 function points = ellipticHelix(geom_struct, X, theta, phase)
