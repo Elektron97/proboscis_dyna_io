@@ -3,6 +3,8 @@ clear all
 close all
 clc
 
+addpath("functions");
+
 %% Create geometrical Properties
 geom_robot.a0 = 210e-3; %[m]
 geom_robot.b0 = 120e-3; %[m]
@@ -49,10 +51,9 @@ actuation_path(:, 6) = ellipticHelix(geom_robot, X, pi/2, pi);
 actuation_path(:, 7) = ellipticHelix(geom_robot, X, pi/2, 1.5*pi);
 
 cable_class = ["l", "l", "l", "ocw", "ocw", "occw", "occw"];
-% cable_class = ["l", " ", "l", "ocw", " ", "occw", "occw"];
 
 %% Plot Robot
-plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
+% plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
 
 %% Actuator Design: Soluzione 2
 % % Robotics Actuators: 8 cables (2 proposta)
@@ -97,10 +98,30 @@ plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
 % plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
 
 %% Evaluation of Strain Modes
-% [xi, ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, geom_robot.L, ones(na, 1));
-[xi, ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, geom_robot.L, [1 1 1, 1 1 1 1]');
-prettyStrainPlot(xi)
+single_CS = false;
+% tau = ones(na, 1);
+tau = [0 0 0, 1 0 0 0]';
 
+if single_CS
+    [xi, ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, geom_robot.L, tau);
+    prettyStrainPlot(xi)
+else
+    arc_length = linspace(0, geom_robot.L);
+
+    for i=1:length(arc_length)
+        [xi(:, i), ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, arc_length(i), tau);
+    end
+
+    figure
+    plot(arc_length, xi)
+    grid on
+    xlabel("Arc Length X [m]")
+    ylabel("Strain Modes")
+    title("Excited Strain Modes over Arc Length")
+    legend("Bending_x", "Bending_y", "Torsion_z", "Shear_x", "Shear_y", "Stretch_z");
+
+    prettyStrainPlot(xi(:, end))
+end
 %% Util Functions
 function points = ellipticHelix(geom_struct, X, theta, phase)
     points = [geom_struct.ax*cos(theta*(X/geom_struct.L) + phase); geom_struct.bx*sin(theta*(X/geom_struct.L) + phase); X];
