@@ -53,7 +53,7 @@ actuation_path(:, 7) = ellipticHelix(geom_robot, X, pi/2, 1.5*pi);
 cable_class = ["l", "l", "l", "ocw", "ocw", "occw", "occw"];
 
 %% Plot Robot
-% plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
+plotRobotq0(geom_robot, actuation_path, n_points, cable_class, false)
 
 %% Actuator Design: Soluzione 2
 % % Robotics Actuators: 8 cables (2 proposta)
@@ -98,15 +98,16 @@ cable_class = ["l", "l", "l", "ocw", "ocw", "occw", "occw"];
 % plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
 
 %% Evaluation of Strain Modes
-single_CS = false;
-% tau = ones(na, 1);
-tau = [0 0 0, 1 0 0 0]';
+single_CS = true;
+tau = ones(na, 1);
+% tau = [1 0 0, 0 0 0 0]';
+n_points = 10;
 
 if single_CS
     [xi, ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, geom_robot.L, tau);
     prettyStrainPlot(xi)
 else
-    arc_length = linspace(0, geom_robot.L);
+    arc_length = linspace(0, geom_robot.L, n_points);
 
     for i=1:length(arc_length)
         [xi(:, i), ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, arc_length(i), tau);
