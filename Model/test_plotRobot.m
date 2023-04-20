@@ -100,7 +100,7 @@ plotRobotq0(geom_robot, actuation_path, n_points, cable_class, false)
 %% Evaluation of Strain Modes
 single_CS = true;
 tau = ones(na, 1);
-% tau = [1 0 0, 0 0 0 0]';
+% tau = [0 0 0, 1 0 0 0]';
 n_points = 10;
 
 if single_CS
