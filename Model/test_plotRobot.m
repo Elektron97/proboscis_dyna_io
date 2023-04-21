@@ -97,10 +97,18 @@ plotRobotq0(geom_robot, actuation_path, n_points, cable_class, false)
 % %% Plot Robot
 % plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
 
+%% Symbolic Actuation Matrix
+% syms k_x k_y k_z sigma_x sigma_y sigma_z real
+% xi = [k_x k_y k_z sigma_x sigma_y sigma_z]';
+% B_tau = simplify(actuationMatrix(xi, actuation_path, X));
+% disp("Actuation Matrix Expression:")
+% B_tau
+
+
 %% Evaluation of Strain Modes
 single_CS = true;
-tau = ones(na, 1);
-% tau = [0 0 0, 1 0 0 0]';
+% tau = ones(na, 1);
+tau = [1 0 0, 0 0 0 0]';
 n_points = 10;
 
 if single_CS
