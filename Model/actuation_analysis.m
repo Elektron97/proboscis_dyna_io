@@ -1,4 +1,4 @@
-%%%%%%%%%%% testing Plot Functions
+%%%%%%%%%%% PROBOSCIS Actuation Analysis %%%%%%%%%%%
 clear all
 close all
 clc
@@ -97,13 +97,12 @@ plotRobotq0(geom_robot, actuation_path, n_points, cable_class, false)
 % %% Plot Robot
 % plotRobotq0(geom_robot, actuation_path, n_points, cable_class, true)
 
-%% Symbolic Actuation Matrix
+%% Analysis of Actuation Matrix
 % syms k_x k_y k_z sigma_x sigma_y sigma_z real
 % xi = [k_x k_y k_z sigma_x sigma_y sigma_z]';
 % B_tau = simplify(actuationMatrix(xi, actuation_path, X));
-% disp("Actuation Matrix Expression:")
-% B_tau
-
+% 
+% % matlabFunction(B_tau, "File", "B_tau_sol1", "Vars", [xi; X], "Outputs", {'B_tau'});
 
 %% Evaluation of Strain Modes
 single_CS = true;
@@ -130,7 +129,18 @@ else
     legend("Bending_x", "Bending_y", "Torsion_z", "Shear_x", "Shear_y", "Stretch_z");
 
     prettyStrainPlot(xi(:, end))
+    %% Extract polynomial/sinusoidal basis
+    % figure
+    % for j=1:6 % strain mdoes
+    %     p{j} = polyfit(arc_length, double(xi(j, :)), 3)
+    %     hold on
+    %     plot(arc_length, xi(j, :), 'ro')
+    %     plot(arc_length, polyval(p{j}, arc_length))
+    %     hold off
+    % end
+    % grid on
 end
+
 %% Util Functions
 function points = ellipticHelix(geom_struct, X, theta, phase)
     points = [geom_struct.ax*cos(theta*(X/geom_struct.L) + phase); geom_struct.bx*sin(theta*(X/geom_struct.L) + phase); X];

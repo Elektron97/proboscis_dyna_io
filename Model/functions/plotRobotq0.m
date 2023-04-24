@@ -100,7 +100,7 @@ grid on
 xlabel("x [m]")
 ylabel("y [m]")
 zlabel("z [m]")
-title("Strain-less PROBOSCIS Robot")
+title("Stress-less PROBOSCIS Robot")
 axis equal
 hold off
 
