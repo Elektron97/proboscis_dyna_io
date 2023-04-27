@@ -102,10 +102,14 @@ plotRobotq0(geom_robot, actuation_path, n_points, cable_class, false)
 % xi = [k_x k_y k_z sigma_x sigma_y sigma_z]';
 % B_tau = simplify(actuationMatrix(xi, actuation_path, X));
 % 
+% B = int((B_tau')*eye(6)*B_tau, 0, geom_robot.L);
+
 % % matlabFunction(B_tau, "File", "B_tau_sol1", "Vars", [xi; X], "Outputs", {'B_tau'});
+% 
+% actuationMatrix_analysis
 
 %% Evaluation of Strain Modes
-single_CS = true;
+single_CS = false;
 % tau = ones(na, 1);
 tau = [1 0 0, 0 0 0 0]';
 n_points = 10;
@@ -117,7 +121,7 @@ else
     arc_length = linspace(0, geom_robot.L, n_points);
 
     for i=1:length(arc_length)
-        [xi(:, i), ~, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, arc_length(i), tau);
+        [xi(:, i), Bq{i}, ~] = trivialGVS(zeros(6, 1), eye(6), actuation_path, arc_length(i), tau);
     end
 
     figure
@@ -132,7 +136,7 @@ else
     %% Extract polynomial/sinusoidal basis
     % figure
     % for j=1:6 % strain mdoes
-    %     p{j} = polyfit(arc_length, double(xi(j, :)), 3)
+    %     p{j} = polyfit(arc_length, double(xi(j, :)), 3);
     %     hold on
     %     plot(arc_length, xi(j, :), 'ro')
     %     plot(arc_length, polyval(p{j}, arc_length))
