@@ -47,6 +47,7 @@ class Dynamixel_Motors
 
     // Methods
     public:
+        // Constructor
         Dynamixel_Motors()
         {
             // Init Port&Packet Handler
@@ -88,4 +89,47 @@ class Dynamixel_Motors
             }
         }
 
+        // --- Methods --- //
+        bool set_torque(int16_t currents[n_motors])
+        {
+            uint8_t dxl_error = 0;
+            int dxl_comm_result = COMM_TX_FAIL;
+            int dxl_addparam_result = false;
+
+            // Double Array for cycle every motors
+            uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
+
+            // Add parameters to sync_write obj
+            int i, j = 0;
+            for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+            {
+                param_goal_currents[i][0] = DXL_LOBYTE(currents[i]);
+                param_goal_currents[i][1] = DXL_HIBYTE(currents[i]);
+
+                dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_currents[i]); // da sistemare
+                if (dxl_addparam_result != true) 
+                {
+                    ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+                    break;
+                }
+            }
+
+            // Send all data
+            dxl_comm_result = motors_syncWrite.txPacket();
+            if (dxl_comm_result == COMM_SUCCESS) 
+            {
+                // Da Sistemare
+                //ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", WSX_ID, torque2Register(msg->data[0]));
+                //ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", WDX_ID, torque2Register(msg->data[1]));
+                return true;
+            } 
+            else 
+            {
+                ROS_ERROR("Failed to set current! Result: %d", dxl_comm_result);
+                return false;
+            }
+
+            // Clear Parameters
+            motors_syncWrite.clearParam();
+        }
 }
