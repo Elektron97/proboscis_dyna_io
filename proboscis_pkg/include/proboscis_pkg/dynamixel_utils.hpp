@@ -85,12 +85,12 @@ class Dynamixel_Motors
 
             // Set Current to Zero in every motors
             int16_t rest_current[n_motors];
-            if(!set_currents(rest_current))
+            if(!set_currentsRegister(rest_current))
                 ROS_ERROR("Failed to set all the torques to zero.");
         }
 
         // --- Methods --- //
-        bool set_currents(int16_t currents[])
+        bool set_currentsRegister(int16_t currents[])
         {
             // Assert: check that dim(currents) = n_motors
             //assert(sizeof(currents)/sizeof(int16_t) == n_motors);
@@ -104,7 +104,7 @@ class Dynamixel_Motors
             uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
 
             // Add parameters to sync_write obj
-            int i, j = 0;
+            int i = 0;
             for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
             {
                 param_goal_currents[i][0] = DXL_LOBYTE(currents[i]);
@@ -139,5 +139,66 @@ class Dynamixel_Motors
                 motors_syncWrite.clearParam();
                 return false;
             }
+        }
+
+        // Da Testare!
+        /*int16_t current2Register(float current)
+        {
+            return MAX_CURRENT_REGISTER*((int16_t) (current/MAX_CURRENT));
+        }
+
+        float register2Current(int16_t register)
+        {
+            return MAX_CURRENT*((float) (register/MAX_CURRENT_REGISTER));
+        }*/
+
+        void powerOFF()
+        {
+            /************SECURITY POWER OFF**********
+             * This function tries DISABLE torque   *
+             * and turn off LEDs for every motor.   *
+             ****************************************/
+
+            uint8_t dxl_error = 0;
+            int dxl_comm_result = COMM_TX_FAIL;
+
+            // Turn Off LED and Disable Torque
+            int i = 0;
+            for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
+            {
+                // LED
+                dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_OFF, &dxl_error);
+                if (dxl_comm_result != COMM_SUCCESS) 
+                {
+                    ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+                    //break;
+                }
+
+                // Disable Torque
+                dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_DISABLE, &dxl_error);
+                if (dxl_comm_result != COMM_SUCCESS) 
+                {
+                    ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+                    //break;
+                }
+            }
+            
+        }
+
+        // Deconstructor
+        ~Dynamixel_Motors()
+        {
+            ROS_WARN("Terminating Dynamixel object...");
+            
+            // Set Current to Zero in every motors
+            int16_t rest_current[n_motors];
+            if(!set_currentsRegister(rest_current))
+                ROS_ERROR("Failed to set all the torques to zero.");
+            
+            // Turn Off every motors
+            powerOFF();
+            
+            ROS_WARN("Dynamixel Object terminated.");
+
         }
 };
