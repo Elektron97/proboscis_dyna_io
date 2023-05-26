@@ -6,12 +6,18 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  dynamixel_sdk
 )
 
 
 catkin_package()
 
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
+
+# This will create executable of the node
+add_executable(motor_io src/motor_io.cpp)
+# This will link executable to the appropriate libraries
+target_link_libraries(motor_io ${catkin_LIBRARIES})

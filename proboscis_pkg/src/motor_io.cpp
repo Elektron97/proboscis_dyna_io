@@ -1,26 +1,18 @@
 /****************************
  * Motor Input/Output Node  *
  ****************************/
-
 // --- Includes --- //
-// ROS for C++
-#include "ros.h"
-// msgs
-#include "std_msgs/Float64MultiArray.h"
-
-// Dynamixels
-#include "dynamixel_sdk/dynamixel_sdk.h"
+#include "proboscis_pkg/dynamixel_utils.hpp"
 
 // --- Define --- //
 #define QUEUE_SIZE 10
 
 // --- Namespace --- //
 using namespace std;        // std io
-using namespace dynamixel;  // dynamixel
 
 // --- Global Variables --- //
-const string topic_tag = "/proboscis";
-const string torque_topic_name = "/cmd_torque";
+string topic_tag = "/proboscis";
+string torque_topic_name = "/cmd_torque";
 
 // Functions
 void torque_callBack(const std_msgs::Float64MultiArray::ConstPtr& msg);
@@ -36,7 +28,8 @@ int main(int argc, char** argv)
     // Subscribing: Writing into the motors
     ros::Subscriber torque_sub = node_obj.subscribe(topic_tag.append(torque_topic_name), QUEUE_SIZE, torque_callBack);
 
-    // Publishing: Effective Torque and Velocity -> Power (?)
+    // Dynamixel Object
+    Dynamixel_Motors dyna_obj = Dynamixel_Motors();
 
     // --- Main Loop --- //
     ros::spin(); // only subscribing ros node
@@ -44,4 +37,9 @@ int main(int argc, char** argv)
     // --- End of Program --- //
     ROS_INFO("Turning OFF all the motors.");    
     return 0;
+}
+
+void torque_callBack(const std_msgs::Float64MultiArray::ConstPtr& msg)
+{
+    ROS_INFO("Dynamixel Node here.");
 }

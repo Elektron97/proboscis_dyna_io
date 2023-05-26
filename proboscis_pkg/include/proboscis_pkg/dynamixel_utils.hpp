@@ -4,7 +4,7 @@
 // Dynamixel SDK
 #include "dynamixel_sdk/dynamixel_sdk.h"
 // ROS for C++
-#include "ros.h"
+#include "ros/ros.h"
 // msgs
 #include "std_msgs/Float64MultiArray.h"
 
@@ -39,10 +39,12 @@ using namespace dynamixel;
 // Dynamixel Class
 class Dynamixel_Motors
 {
-    // Private Attributes
-    PortHandler *portHandler;
-    PacketHandler *packetHandler;
-    GroupSyncWrite motors_syncWrite;
+    // --- Private Attributes --- //
+    // Communication Utils
+    PortHandler *portHandler        = PortHandler::getPortHandler(DEVICE_NAME);
+    PacketHandler *packetHandler    = PacketHandler::getPacketHandler(BAUDRATE);
+    GroupSyncWrite motors_syncWrite = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_CURRENT, CURRENT_BYTE);
+    // N° of motors
     int n_motors;
 
     // Methods
@@ -50,13 +52,6 @@ class Dynamixel_Motors
         // Constructor
         Dynamixel_Motors()
         {
-            // Init Port&Packet Handler
-            portHandler = PortHandler::getPortHandler(DEVICE_NAME);
-            packetHandler = PacketHandler::getPacketHandler(BAUDRATE);
-
-            // Init GroupSync Object
-            motors_syncWrite = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_CURRENT, CURRENT_BYTE);
-
             // Open Communication
             uint8_t dxl_error = 0;
             int dxl_comm_result = COMM_TX_FAIL;
@@ -87,11 +82,20 @@ class Dynamixel_Motors
                     break;
                 }
             }
+
+            // Set Current to Zero in every motors
+            int16_t rest_current[n_motors];
+            if(!set_currents(rest_current))
+                ROS_ERROR("Failed to set all the torques to zero.");
         }
 
         // --- Methods --- //
-        bool set_torque(int16_t currents[n_motors])
+        bool set_currents(int16_t currents[])
         {
+            // Assert: check that dim(currents) = n_motors
+            //assert(sizeof(currents)/sizeof(int16_t) == n_motors);
+
+            // Error Handling
             uint8_t dxl_error = 0;
             int dxl_comm_result = COMM_TX_FAIL;
             int dxl_addparam_result = false;
@@ -107,7 +111,7 @@ class Dynamixel_Motors
                 param_goal_currents[i][1] = DXL_HIBYTE(currents[i]);
 
                 dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_currents[i]); // da sistemare
-                if (dxl_addparam_result != true) 
+                if (dxl_addparam_result != true)
                 {
                     ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
                     break;
@@ -118,18 +122,22 @@ class Dynamixel_Motors
             dxl_comm_result = motors_syncWrite.txPacket();
             if (dxl_comm_result == COMM_SUCCESS) 
             {
-                // Da Sistemare
-                //ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", WSX_ID, torque2Register(msg->data[0]));
-                //ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", WDX_ID, torque2Register(msg->data[1]));
+                for(i; i < n_motors; i++)
+                {
+                   ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", i+1, currents[i]); 
+                }
+                
+                // Clear Parameters
+                motors_syncWrite.clearParam();
                 return true;
             } 
             else 
             {
                 ROS_ERROR("Failed to set current! Result: %d", dxl_comm_result);
+                
+                // Clear Parameters
+                motors_syncWrite.clearParam();
                 return false;
             }
-
-            // Clear Parameters
-            motors_syncWrite.clearParam();
         }
-}
+};
