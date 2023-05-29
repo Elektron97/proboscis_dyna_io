@@ -3,6 +3,8 @@
  ****************************/
 // --- Includes --- //
 #include "proboscis_pkg/dynamixel_utils.hpp"
+// msgs
+#include "std_msgs/Float64MultiArray.h"
 
 // --- Define --- //
 #define QUEUE_SIZE  10
@@ -14,6 +16,9 @@ using namespace std;        // std io
 // --- Global Variables --- //
 string topic_tag = "/proboscis";
 string torque_topic_name = "/cmd_torque";
+
+// Dynamixel Object
+Dynamixel_Motors dyna_obj(N_MOTORS);
 
 // Functions
 void torque_callBack(const std_msgs::Float64MultiArray::ConstPtr& msg);
@@ -29,9 +34,6 @@ int main(int argc, char** argv)
     // Subscribing: Writing into the motors
     ros::Subscriber torque_sub = node_obj.subscribe(topic_tag.append(torque_topic_name), QUEUE_SIZE, torque_callBack);
 
-    // Dynamixel Object
-    Dynamixel_Motors dyna_obj = Dynamixel_Motors(N_MOTORS);
-
     // --- Main Loop --- //
     ros::spin(); // only subscribing ros node
 
@@ -42,5 +44,23 @@ int main(int argc, char** argv)
 
 void torque_callBack(const std_msgs::Float64MultiArray::ConstPtr& msg)
 {
-    ROS_INFO("Dynamixel Node here.");
+    ROS_INFO("Torque command received.");
+
+    // Verify n of motors
+    if(msg->layout.dim[0].size == N_MOTORS)
+    {
+        //Extract array of torques
+        /*if(dyna_obj.set_currentsRegister(msg->data))
+            ROS_INFO("Torque command written correctly on Dynamixels.");
+        else
+        {
+            ROS_ERROR("Torque command written uncorrectly on Dynamixels.");
+            return;
+        }*/
+    }
+    else
+    {
+        ROS_ERROR("/cmd_torque msg is uncorrect. Wrong number of motors.");
+        return;
+    }
 }

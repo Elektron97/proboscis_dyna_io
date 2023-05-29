@@ -5,8 +5,6 @@
 #include "dynamixel_sdk/dynamixel_sdk.h"
 // ROS for C++
 #include "ros/ros.h"
-// msgs
-#include "std_msgs/Float64MultiArray.h"
 
 // Dynamixel Namespace
 using namespace dynamixel;
@@ -16,12 +14,15 @@ using namespace dynamixel;
 #define ADDR_TORQUE_ENABLE      64
 #define ADDR_GOAL_CURRENT       102
 #define ADDR_LED                65
+#define ADDR_OP_MODE            11    
 
 // Value
 #define LED_ON                  1
 #define LED_OFF                 0
 #define TORQUE_ENABLE           1
 #define TORQUE_DISABLE          0
+#define CURRENT_MODE            0
+#define CURRENT_POSITION_MODE   5
 
 // Data Length
 #define CURRENT_BYTE            2
@@ -54,7 +55,7 @@ class Dynamixel_Motors
         {
             // Init n_motors
             n_motors = n_dyna;
-            
+
             // Open Communication
             uint8_t dxl_error = 0;
             int dxl_comm_result = COMM_TX_FAIL;
@@ -65,7 +66,7 @@ class Dynamixel_Motors
             if (!portHandler->setBaudRate(BAUDRATE))
                 ROS_ERROR("Failed to set the baudrate!");
             
-            // Turn On LED and Enable Torque
+            // Turn On LED, Current Mode and Enable Torque
             int i = 0;
             for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
             {
@@ -77,6 +78,14 @@ class Dynamixel_Motors
                     break;
                 }
 
+                // Current Drive Mode
+                dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_OP_MODE, CURRENT_MODE, &dxl_error);
+                if (dxl_comm_result != COMM_SUCCESS) 
+                {
+                    ROS_ERROR("Failed to set Current Mode for Dynamixel ID %d", i+1);
+                    break;
+                }
+
                 // Enable Torque
                 dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
                 if (dxl_comm_result != COMM_SUCCESS) 
@@ -85,7 +94,7 @@ class Dynamixel_Motors
                     break;
                 }
             }
-
+            
             // Set Current to Zero in every motors
             int16_t rest_current[n_motors];
             if(!set_currentsRegister(rest_current))
@@ -125,7 +134,7 @@ class Dynamixel_Motors
             dxl_comm_result = motors_syncWrite.txPacket();
             if (dxl_comm_result == COMM_SUCCESS) 
             {
-                for(i; i < n_motors; i++)
+                for(i = 0; i < n_motors; i++)
                 {
                    ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", i+1, currents[i]); 
                 }
@@ -153,6 +162,12 @@ class Dynamixel_Motors
         float register2Current(int16_t register)
         {
             return MAX_CURRENT*((float) (register/MAX_CURRENT_REGISTER));
+        }
+
+        bool set_currents(float currents[])
+        {
+            // TO DO: ADD CONVERSION
+            return set_currentsRegister(currents);
         }*/
 
         void powerOFF()
