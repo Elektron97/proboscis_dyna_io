@@ -2,7 +2,7 @@
  * Motor Input/Output Node  *
  ****************************/
 // --- Includes --- //
-#include "proboscis_pkg/dynamixel_utils.hpp"
+#include "proboscis_pkg/dynamixel_utils.h"
 // msgs
 #include "std_msgs/Float32MultiArray.h"
 
@@ -47,10 +47,10 @@ void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
     ROS_INFO("Torque command received.");
 
     // Verify n of motors
-    if(msg->layout.dim[0].size == N_MOTORS)
+    /*if(msg->layout.dim[0].size == N_MOTORS)
     {
         //Extract array of torques
-        if(dyna_obj.set_currents(msg->data))
+        if(dyna_obj.set_torques(msg->data))
             ROS_INFO("Torque command written correctly on Dynamixels.");
         else
         {
@@ -62,5 +62,5 @@ void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
     {
         ROS_ERROR("/cmd_torque msg is uncorrect. Wrong number of motors.");
         return;
-    }
+    }*/
 }

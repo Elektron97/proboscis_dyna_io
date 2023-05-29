@@ -9,13 +9,16 @@ find_package(catkin REQUIRED COMPONENTS
   dynamixel_sdk
 )
 
-
 catkin_package()
 
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
+
+# Dynamixel Library
+add_library(dynamixel_utils src/dynamixel_utils.cpp)
+target_link_libraries(dynamixel_utils ${catkin_LIBRARIES})
 
 # This will create executable of the node
 add_executable(motor_io src/motor_io.cpp)
