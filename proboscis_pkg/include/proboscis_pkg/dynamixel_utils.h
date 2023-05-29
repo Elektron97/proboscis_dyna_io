@@ -54,11 +54,11 @@ using namespace dynamixel;
 
 // Functions
 int16_t current2Register(float current_value);
-float register2Current(int16_t register_value);
-bool register_saturation(int16_t &register_value);
-float torque2Current(float current);
+float   register2Current(int16_t register_value);
+bool    register_saturation(int16_t &register_value);
+float   torque2Current(float current);
 int16_t torque2Register(float torque);
-float sign(float x);
+float   sign(float x);
 
 // Dynamixel Class
 class Dynamixel_Motors
