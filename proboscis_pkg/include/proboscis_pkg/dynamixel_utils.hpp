@@ -29,7 +29,7 @@ using namespace dynamixel;
 
 #define PROTOCOL_VERSION        2.0             // Default Protocol version of DYNAMIXEL X series.
 
-#define BAUDRATE                57600           // Default Baudrate of DYNAMIXEL X series
+#define BAUDRATE                115200          // Default Baudrate of DYNAMIXEL X series
 #define DEVICE_NAME             "/dev/ttyUSB0"  // [Linux] To find assigned port, use "$ ls /dev/ttyUSB*" command
 
 #define MAX_CURRENT             3.209           //[A] | Max current permitted in the motors.
@@ -50,7 +50,7 @@ class Dynamixel_Motors
 
     // Methods
     public:
-        // Constructor
+        // --- Constructor --- //
         Dynamixel_Motors(int n_dyna)
         {
             // Init n_motors
@@ -60,10 +60,10 @@ class Dynamixel_Motors
             uint8_t dxl_error = 0;
             int dxl_comm_result = COMM_TX_FAIL;
 
-            if (!portHandler->openPort()) 
+            if(!portHandler->openPort()) 
                 ROS_ERROR("Failed to open the port!");
 
-            if (!portHandler->setBaudRate(BAUDRATE))
+            if(!portHandler->setBaudRate(BAUDRATE))
                 ROS_ERROR("Failed to set the baudrate!");
             
             // Turn On LED, Current Mode and Enable Torque
@@ -74,7 +74,7 @@ class Dynamixel_Motors
                 dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_ON, &dxl_error);
                 if (dxl_comm_result != COMM_SUCCESS) 
                 {
-                    ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+                    ROS_ERROR("Failed to turn on LED for Dynamixel ID %d", i+1);
                     break;
                 }
 
@@ -96,7 +96,7 @@ class Dynamixel_Motors
             }
             
             // Set Current to Zero in every motors
-            int16_t rest_current[n_motors];
+            int16_t rest_current[n_motors] = { 0 }; // initializer list
             if(!set_currentsRegister(rest_current))
                 ROS_ERROR("Failed to set all the torques to zero.");
         }
@@ -188,7 +188,7 @@ class Dynamixel_Motors
                 dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_OFF, &dxl_error);
                 if (dxl_comm_result != COMM_SUCCESS) 
                 {
-                    ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+                    ROS_ERROR("Failed to turn off LED for Dynamixel ID %d", i+1);
                     //break;
                 }
 
@@ -196,20 +196,20 @@ class Dynamixel_Motors
                 dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_DISABLE, &dxl_error);
                 if (dxl_comm_result != COMM_SUCCESS) 
                 {
-                    ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+                    ROS_ERROR("Failed to disable torque for Dynamixel ID %d", i+1);
                     //break;
                 }
             }
             
         }
 
-        // Deconstructor
+        // --- Deconstructor --- //
         ~Dynamixel_Motors()
         {
             ROS_WARN("Terminating Dynamixel object...");
             
             // Set Current to Zero in every motors
-            int16_t rest_current[n_motors];
+            int16_t rest_current[n_motors] = { 0 }; // initializer list
             if(!set_currentsRegister(rest_current))
                 ROS_ERROR("Failed to set all the torques to zero.");
             
@@ -217,6 +217,5 @@ class Dynamixel_Motors
             powerOFF();
             
             ROS_WARN("Dynamixel Object terminated.");
-
         }
 };
