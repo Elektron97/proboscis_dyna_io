@@ -46,6 +46,8 @@ using namespace dynamixel;
 // Functions
 int16_t current2Register(float current_value);
 float register2Current(int16_t register_value);
+bool register_saturation(int16_t &register_value);
+float sign(float x);
 
 // Dynamixel Class
 class Dynamixel_Motors
@@ -129,6 +131,11 @@ class Dynamixel_Motors
             int i = 0;
             for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
             {
+                // Security Saturation on register values
+                if(!register_saturation(registers[i]))
+                    ROS_WARN("Commanded Current are out of limits. Saturating...");
+
+
                 param_goal_currents[i][0] = DXL_LOBYTE(registers[i]);
                 param_goal_currents[i][1] = DXL_HIBYTE(registers[i]);
 
@@ -302,4 +309,29 @@ int16_t current2Register(float current_value)
 float register2Current(int16_t register_value)
 {
     return MAX_CURRENT*((float) (register_value/MAX_CURRENT_REGISTER));
+}
+
+bool register_saturation(int16_t &register_value)
+{
+    // No need of sign function, because is only positive values
+    if(abs(register_value) > MAX_CURRENT_REGISTER)
+    {
+        register_value = ((int16_t) sign(register_value))*MAX_CURRENT_REGISTER;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+float sign(float x)
+{
+    /*SIGN FUNCTION:*/
+    if(x > 0)
+        return 1.0;
+    if(x < 0)
+        return -1.0;
+    else
+        return 0.0;
 }
