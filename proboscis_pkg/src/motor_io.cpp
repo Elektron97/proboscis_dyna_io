@@ -4,7 +4,7 @@
 // --- Includes --- //
 #include "proboscis_pkg/dynamixel_utils.hpp"
 // msgs
-#include "std_msgs/Float64MultiArray.h"
+#include "std_msgs/Float32MultiArray.h"
 
 // --- Define --- //
 #define QUEUE_SIZE  10
@@ -20,8 +20,8 @@ string torque_topic_name = "/cmd_torque";
 // Dynamixel Object
 Dynamixel_Motors dyna_obj(N_MOTORS);
 
-// Functions
-void torque_callBack(const std_msgs::Float64MultiArray::ConstPtr& msg);
+// --- CallBacks --- //
+void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
 
 // --- Main --- //
 int main(int argc, char** argv)
@@ -42,21 +42,21 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void torque_callBack(const std_msgs::Float64MultiArray::ConstPtr& msg)
-{
+void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
+{    
     ROS_INFO("Torque command received.");
 
     // Verify n of motors
     if(msg->layout.dim[0].size == N_MOTORS)
     {
         //Extract array of torques
-        /*if(dyna_obj.set_currentsRegister(msg->data))
+        if(dyna_obj.set_currents(msg->data))
             ROS_INFO("Torque command written correctly on Dynamixels.");
         else
         {
             ROS_ERROR("Torque command written uncorrectly on Dynamixels.");
             return;
-        }*/
+        }
     }
     else
     {
