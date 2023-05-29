@@ -50,8 +50,11 @@ class Dynamixel_Motors
     // Methods
     public:
         // Constructor
-        Dynamixel_Motors()
+        Dynamixel_Motors(int n_dyna)
         {
+            // Init n_motors
+            n_motors = n_dyna;
+            
             // Open Communication
             uint8_t dxl_error = 0;
             int dxl_comm_result = COMM_TX_FAIL;

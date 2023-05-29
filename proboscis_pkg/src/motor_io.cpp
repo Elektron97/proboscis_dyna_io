@@ -5,7 +5,8 @@
 #include "proboscis_pkg/dynamixel_utils.hpp"
 
 // --- Define --- //
-#define QUEUE_SIZE 10
+#define QUEUE_SIZE  10
+#define N_MOTORS    7
 
 // --- Namespace --- //
 using namespace std;        // std io
@@ -29,7 +30,7 @@ int main(int argc, char** argv)
     ros::Subscriber torque_sub = node_obj.subscribe(topic_tag.append(torque_topic_name), QUEUE_SIZE, torque_callBack);
 
     // Dynamixel Object
-    Dynamixel_Motors dyna_obj = Dynamixel_Motors();
+    Dynamixel_Motors dyna_obj = Dynamixel_Motors(N_MOTORS);
 
     // --- Main Loop --- //
     ros::spin(); // only subscribing ros node
