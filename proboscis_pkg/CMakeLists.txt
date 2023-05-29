@@ -22,5 +22,5 @@ target_link_libraries(dynamixel_utils ${catkin_LIBRARIES})
 
 # This will create executable of the node
 add_executable(motor_io src/motor_io.cpp)
-# This will link executable to the appropriate libraries
+# This will link executable to the appropriate libraries (including home-made libraries)
 target_link_libraries(motor_io ${catkin_LIBRARIES} dynamixel_utils)
