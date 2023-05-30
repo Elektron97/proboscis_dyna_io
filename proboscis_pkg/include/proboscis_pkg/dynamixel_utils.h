@@ -82,18 +82,19 @@ class Dynamixel_Motors
         // --- Methods --- //
         // Low Level Set: Register
         bool set_currentRegisters(int16_t registers[]);
-        bool set_currentRegisters(std::vector<int16_t> registers);  // Overwrite
+        bool set_currentRegisters(std::vector<int16_t> registers);  // Overwrite (vector<T>)
         
         // Mid Level Set: Current
         bool set_currents(float currents[]);
-        bool set_currents(std::vector<float> currents);             // Overwrite
+        bool set_currents(std::vector<float> currents);             // Overwrite (vector<T>)
 
         // High Level Set: Torque   
         bool set_torques(float torques[]);
-        bool set_torques(std::vector<float> torques);               // Overwrite
+        bool set_torques(std::vector<float> torques);               // Overwrite (vector<T>)
 
-        // Power Off Function
-        void powerOFF();
+        // Power Off Functions
+        bool set2Zeros();                                           // Setting to zeros every dynamixels
+        void powerOFF();                                            // Turn Off every Dynamixels
 };
 
 #endif /* DYNAMIXEL_UTILS_H_ */

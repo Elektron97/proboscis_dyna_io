@@ -51,8 +51,7 @@ Dynamixel_Motors::Dynamixel_Motors(int n_dyna)
     }
     
     // Set Current to Zero in every motors
-    int16_t rest_current[n_motors] = { 0 }; // initializer list
-    if(!set_currentRegisters(rest_current))
+    if(!set2Zeros())
         ROS_ERROR("Failed to set all the torques to zero.");
 }
 
@@ -62,8 +61,7 @@ Dynamixel_Motors::~Dynamixel_Motors()
     ROS_WARN("Terminating Dynamixel object...");
     
     // Set Current to Zero in every motors
-    int16_t rest_current[n_motors] = { 0 }; // initializer list
-    if(!set_currentRegisters(rest_current))
+    if(!set2Zeros())
         ROS_ERROR("Failed to set all the torques to zero.");
     
     // Turn Off every motors
@@ -235,6 +233,54 @@ bool Dynamixel_Motors::set_torques(std::vector<float> torques)
     }
 
     return set_currentRegisters(registers);
+}
+
+bool Dynamixel_Motors::set2Zeros()
+{
+    // Error Handling
+    uint8_t dxl_error = 0;
+    int dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Double Array for cycle every motors
+    uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
+
+    // Add parameters to sync_write obj
+    int i = 0;
+    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+    {
+        param_goal_currents[i][0] = DXL_LOBYTE(0);
+        param_goal_currents[i][1] = DXL_HIBYTE(0);
+
+        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_currents[i]); // da sistemare
+        if (dxl_addparam_result != true)
+        {
+            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Send all data
+    dxl_comm_result = motors_syncWrite.txPacket();
+    if (dxl_comm_result == COMM_SUCCESS) 
+    {
+        for(i = 0; i < n_motors; i++)
+        {
+            ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", i+1, 0); 
+        }
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return true;
+    } 
+    else 
+    {
+        ROS_ERROR("Failed to set current! Result: %d", dxl_comm_result);
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return false;
+    }
 }
 
 void Dynamixel_Motors::powerOFF()
