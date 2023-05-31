@@ -17,11 +17,13 @@
 using namespace dynamixel;
 
 /* DEFINE*/
-// Address
+// Addresses
 #define ADDR_TORQUE_ENABLE      64
-#define ADDR_GOAL_CURRENT       102
 #define ADDR_LED                65
-#define ADDR_OP_MODE            11    
+#define ADDR_OP_MODE            11
+#define ADDR_GOAL_POSITION      116
+#define ADDR_GOAL_VELOCITY      104
+#define ADDR_GOAL_CURRENT       102   
 
 // Value
 #define LED_ON                  1
@@ -29,9 +31,12 @@ using namespace dynamixel;
 #define TORQUE_ENABLE           1
 #define TORQUE_DISABLE          0
 #define CURRENT_MODE            0
-#define CURRENT_POSITION_MODE   5
+#define VELOCITY_MODE           1
+#define EXTENDED_POSITION_MODE  5
 
 // Data Length
+#define POSITION_BYTE           4
+#define VELOCITY_BYTE           4
 #define CURRENT_BYTE            2
 
 #define PROTOCOL_VERSION        2.0             // Default Protocol version of DYNAMIXEL X series.
@@ -46,28 +51,14 @@ using namespace dynamixel;
 
 #define MAX_CURRENT_REGISTER    1193            // uint16_t | Max value in the current Register. Corresponds to MAX_CURRENT.
 
-// Mapping Torque - Current
-// current(torque) = coeff_2*torque^2 + coeff_1*torque + coeff_0
-#define COEFF_0 0.1327
-#define COEFF_1 0.5753
-#define COEFF_2 0.2030
-
-// Functions
-int16_t current2Register(float current_value);
-float   register2Current(int16_t register_value);
-bool    register_saturation(int16_t &register_value);
-float   torque2Current(float current);
-int16_t torque2Register(float torque);
-float   sign(float x);
-
-// Dynamixel Class
+// (Abstract) Dynamixel Class
+template <typename T>
 class Dynamixel_Motors
 {
     // --- Private Attributes --- //
-    // Communication Utils
+    // Communication Utils    
     PortHandler *portHandler        = PortHandler::getPortHandler(DEVICE_NAME);
     PacketHandler *packetHandler    = PacketHandler::getPacketHandler(BAUDRATE);
-    GroupSyncWrite motors_syncWrite = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_CURRENT, CURRENT_BYTE);
     // N° of motors
     int n_motors;
 
@@ -80,21 +71,12 @@ class Dynamixel_Motors
         ~Dynamixel_Motors();
 
         // --- Methods --- //
-        // Low Level Set: Register
-        bool set_currentRegisters(int16_t registers[]);
-        bool set_currentRegisters(std::vector<int16_t> registers);  // Overwrite (vector<T>)
-        
-        // Mid Level Set: Current
-        bool set_currents(float currents[]);
-        bool set_currents(std::vector<float> currents);             // Overwrite (vector<T>)
-
-        // High Level Set: Torque   
-        bool set_torques(float torques[]);
-        bool set_torques(std::vector<float> torques);               // Overwrite (vector<T>)
+        virtual bool set2registers(T registers[]);
+        virtual bool set2registers(std::vector<T> registers);
 
         // Power Off Functions
-        bool set2Zeros();                                           // Setting to zeros every dynamixels
-        void powerOFF();                                            // Turn Off every Dynamixels
+        virtual bool set2Zeros();
+        void powerOFF();                // Turn Off every Dynamixels
 };
 
 #endif /* DYNAMIXEL_UTILS_H_ */
