@@ -60,11 +60,12 @@ class Dynamixel_Motors
     PortHandler *portHandler        = PortHandler::getPortHandler(DEVICE_NAME);
     PacketHandler *packetHandler    = PacketHandler::getPacketHandler(BAUDRATE);
     // N° of motors
-    int n_motors;
+    int n_motors = 0;
 
     // Methods
     public:
         // --- Constructor --- //
+        Dynamixel_Motors();
         Dynamixel_Motors(int n_dyna);
         
         // --- Deconstructor --- //
@@ -78,5 +79,11 @@ class Dynamixel_Motors
         virtual bool set2Zeros();
         void powerOFF();                // Turn Off every Dynamixels
 };
+
+// Current Dynamixel
+/*class Current_Dynamixel: public Dynamixel_Motors<int16_t>
+{
+
+}*/
 
 #endif /* DYNAMIXEL_UTILS_H_ */

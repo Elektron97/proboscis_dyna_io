@@ -6,6 +6,19 @@
 
 // --- Dynamixel Class --- //
 // Constructor 
+template <typename T> Dynamixel_Motors<T>::Dynamixel_Motors()
+{
+    // Open Communication
+    uint8_t dxl_error = 0;
+    int dxl_comm_result = COMM_TX_FAIL;
+
+    if(!portHandler->openPort()) 
+        ROS_ERROR("Failed to open the port!");
+
+    if(!portHandler->setBaudRate(BAUDRATE))
+        ROS_ERROR("Failed to set the baudrate!");
+}
+
 template <typename T> Dynamixel_Motors<T>::Dynamixel_Motors(int n_dyna)
 {
     // Init n_motors
