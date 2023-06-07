@@ -70,8 +70,9 @@ Current_Dynamixel::Current_Dynamixel(int n_dyna)
     n_motors = n_dyna;
 
     // Error Handling
-    dxl_error = 0;
-    dxl_comm_result = COMM_TX_FAIL;
+    // Init done by Super Class Constructor
+    //dxl_error = 0;
+    //dxl_comm_result = COMM_TX_FAIL;
 
     // Turn On LED, Current Mode and Enable Torque
     int i = 0;
@@ -318,6 +319,241 @@ bool Current_Dynamixel::set_torques(std::vector<float> torques)
     }
 
     return set2registers(registers);
+}
+
+/**************************************************************************/
+// --- Extended Position Dynamixel Class --- //
+ExtPos_Dynamixel::ExtPos_Dynamixel(int n_dyna)
+{
+    // Init n_motors
+    n_motors = n_dyna;
+
+    // Error Handling
+    // Init done by Super Class Constructor
+    //dxl_error = 0;
+    //dxl_comm_result = COMM_TX_FAIL;
+
+    // Turn On LED, Current Mode and Enable Torque
+    int i = 0;
+    for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
+    {
+        // LED
+        dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_ON, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to turn on LED for Dynamixel ID %d", i+1);
+            break;
+        }
+
+        // Current Drive Mode
+        dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_OP_MODE, EXTENDED_POSITION_MODE, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to set Current Mode for Dynamixel ID %d", i+1);
+            break;
+        }
+
+        // Enable Torque
+        dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Read Initial Position
+    if(!get_registers(initial_positions))
+        ROS_ERROR("Failed to read all initial positions of the motors.");
+}
+
+bool ExtPos_Dynamixel::get_registers(std::vector<int32_t>& positions)
+{
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Add all motors' id
+    int i = 1;
+    for(i; i <= n_motors; i++)
+    {
+        // Supposing that Motors ID are 1, 2, 3, 4, ..., n_motors
+        dxl_addparam_result = position_syncRead.addParam((uint8_t) i);
+        if (dxl_addparam_result != true) 
+        {
+            ROS_ERROR("Failed to addparam to groupSyncRead for Dynamixel ID %d", i);
+            break;
+        }
+    }
+
+    // Read all motors
+    dxl_comm_result = position_syncRead.txRxPacket();
+    if(dxl_comm_result == COMM_SUCCESS)
+    {
+        for(i = 1; i <= n_motors; i++)
+        {
+            positions.push_back(position_syncRead.getData((uint8_t) i, ADDR_PRESENT_POSITION, POSITION_BYTE));
+        }
+
+        position_syncRead.clearParam();
+        return true;
+    }
+    else
+    {
+        ROS_ERROR("Failed to get position! Result: %d", dxl_comm_result);
+        position_syncRead.clearParam();
+        return false;       
+    }
+}
+
+bool ExtPos_Dynamixel::set2registers(int32_t registers[])
+{
+    // Error Handling
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Double Array for cycle every motors
+    uint8_t param_goal_positions[n_motors][POSITION_BYTE];
+
+    // Add parameters to sync_write obj
+    int i = 0;
+    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+    {
+        param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
+        param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
+        param_goal_positions[i][2] = DXL_LOBYTE(DXL_HIWORD(registers[i]));
+        param_goal_positions[i][3] = DXL_HIBYTE(DXL_HIWORD(registers[i]));
+
+        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_positions[i]);
+        if (dxl_addparam_result != true)
+        {
+            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Send all data
+    dxl_comm_result = motors_syncWrite.txPacket();
+    if (dxl_comm_result == COMM_SUCCESS) 
+    {
+        for(i = 0; i < n_motors; i++)
+        {
+            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, 0); 
+        }
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return true;
+    } 
+    else 
+    {
+        ROS_ERROR("Failed to set position! Result: %d", dxl_comm_result);
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return false;
+    }
+}
+
+bool ExtPos_Dynamixel::set2registers(std::vector<int32_t> registers)
+{
+    // Error Handling
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Double Array for cycle every motors
+    uint8_t param_goal_positions[n_motors][POSITION_BYTE];
+
+    // Add parameters to sync_write obj
+    int i = 0;
+    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+    {
+        param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
+        param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
+        param_goal_positions[i][2] = DXL_LOBYTE(DXL_HIWORD(registers[i]));
+        param_goal_positions[i][3] = DXL_HIBYTE(DXL_HIWORD(registers[i]));
+
+        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_positions[i]);
+        if (dxl_addparam_result != true)
+        {
+            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Send all data
+    dxl_comm_result = motors_syncWrite.txPacket();
+    if (dxl_comm_result == COMM_SUCCESS) 
+    {
+        for(i = 0; i < n_motors; i++)
+        {
+            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, 0); 
+        }
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return true;
+    } 
+    else 
+    {
+        ROS_ERROR("Failed to set position! Result: %d", dxl_comm_result);
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return false;
+    }
+}
+
+bool ExtPos_Dynamixel::set2Zeros()
+{
+    // Error Handling
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Double Array for cycle every motors
+    uint8_t param_goal_positions[n_motors][POSITION_BYTE];
+
+    // Add parameters to sync_write obj
+    int i = 0;
+    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+    {
+        param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(initial_positions[i]));
+        param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(initial_positions[i]));
+        param_goal_positions[i][2] = DXL_LOBYTE(DXL_HIWORD(initial_positions[i]));
+        param_goal_positions[i][3] = DXL_HIBYTE(DXL_HIWORD(initial_positions[i]));
+
+        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_positions[i]);
+        if (dxl_addparam_result != true)
+        {
+            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Send all data
+    dxl_comm_result = motors_syncWrite.txPacket();
+    if (dxl_comm_result == COMM_SUCCESS) 
+    {
+        for(i = 0; i < n_motors; i++)
+        {
+            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, 0); 
+        }
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return true;
+    } 
+    else 
+    {
+        ROS_ERROR("Failed to set position! Result: %d", dxl_comm_result);
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return false;
+    }
 }
 
 /**************************************************************************/

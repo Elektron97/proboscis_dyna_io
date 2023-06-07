@@ -17,8 +17,8 @@ using namespace std;        // std io
 string topic_tag = "/proboscis";
 string torque_topic_name = "/cmd_torque";
 
-// Dynamixel Object
-//Dynamixel_Motors dyna_obj(N_MOTORS);
+// Current Dynamixel Object
+Current_Dynamixel dyna_obj(N_MOTORS);
 
 // --- CallBacks --- //
 void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
@@ -47,7 +47,7 @@ void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
     ROS_INFO("Torque command received.");
 
     // Verify n of motors
-    /*if(msg->layout.dim[0].size == N_MOTORS)
+    if(msg->layout.dim[0].size == N_MOTORS)
     {
         //Extract array of torques
         if(dyna_obj.set_torques(msg->data))
@@ -62,5 +62,5 @@ void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
     {
         ROS_ERROR("/cmd_torque msg is uncorrect. Wrong number of motors.");
         return;
-    }*/
+    }
 }

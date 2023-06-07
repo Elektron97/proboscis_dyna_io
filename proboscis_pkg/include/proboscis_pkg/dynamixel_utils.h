@@ -21,9 +21,12 @@ using namespace dynamixel;
 #define ADDR_TORQUE_ENABLE      64
 #define ADDR_LED                65
 #define ADDR_OP_MODE            11
+// Goal
 #define ADDR_GOAL_POSITION      116
 #define ADDR_GOAL_VELOCITY      104
 #define ADDR_GOAL_CURRENT       102   
+// Present
+#define ADDR_PRESENT_POSITION   132
 
 // Value
 #define LED_ON                  1
@@ -91,11 +94,11 @@ class Dynamixel_Motors
         ~Dynamixel_Motors();
 
         // --- Methods --- //
-        virtual bool set2registers(T registers[]);
-        virtual bool set2registers(std::vector<T> registers);
+        virtual bool set2registers(T registers[]){return true;};
+        virtual bool set2registers(std::vector<T> registers){return true;};
 
         // Power Off Functions
-        virtual bool set2Zeros();
+        virtual bool set2Zeros(){return true;};
         void powerOFF();                // Turn Off every Dynamixels
 };
 
@@ -121,6 +124,32 @@ class Current_Dynamixel: public Dynamixel_Motors<int16_t>
         // High Level Set: Torque   
         bool set_torques(float torques[]);
         bool set_torques(std::vector<float> torques);               // Overwrite (vector<T>)
+
+        // Power Off Functions
+        bool set2Zeros();
+};
+
+// Extended Position Dynamixel
+class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
+{
+    // Init with CURRENT address
+    GroupSyncWrite motors_syncWrite     = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_POSITION, POSITION_BYTE);
+    GroupSyncRead position_syncRead    = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_POSITION, POSITION_BYTE);
+
+    // Initial Positions
+    std::vector<int32_t> initial_positions;
+
+    public:
+        // --- Constructor --- //
+        ExtPos_Dynamixel(int n_dyna);
+
+        // --- Methods --- //
+        // Low Level Set: Register
+        bool set2registers(int32_t registers[]);
+        bool set2registers(std::vector<int32_t> registers);         // Overwrite (vector<T>)
+
+        // Low Level Get: Register
+        bool get_registers(std::vector<int32_t>& positions);
 
         // Power Off Functions
         bool set2Zeros();
