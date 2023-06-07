@@ -27,6 +27,7 @@ using namespace dynamixel;
 #define ADDR_GOAL_CURRENT       102   
 // Present
 #define ADDR_PRESENT_POSITION   132
+#define ADDR_PRESENT_CURRENT    126
 
 // Value
 #define LED_ON                  1
@@ -53,6 +54,7 @@ using namespace dynamixel;
 #define MAX_VELOCITY            24.5324         // [rad/s]
 
 #define MAX_CURRENT_REGISTER    1193            // uint16_t | Max value in the current Register. Corresponds to MAX_CURRENT.
+#define ONE_TURN_REGISTER       4095            // uint16_t | Position value that corrisponds to only one turn
 
 // Mapping Torque - Current
 // current(torque) = coeff_2*torque^2 + coeff_1*torque + coeff_0
@@ -132,9 +134,10 @@ class Current_Dynamixel: public Dynamixel_Motors<int16_t>
 // Extended Position Dynamixel
 class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
 {
-    // Init with CURRENT address
-    GroupSyncWrite motors_syncWrite     = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_POSITION, POSITION_BYTE);
-    GroupSyncRead position_syncRead    = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_POSITION, POSITION_BYTE);
+    // Init with POSITION address
+    GroupSyncWrite  motors_syncWrite    = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_POSITION, POSITION_BYTE);
+    GroupSyncRead   position_syncRead   = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_POSITION, POSITION_BYTE);
+    GroupSyncRead   current_syncRead    = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_CURRENT, CURRENT_BYTE);
 
     // Initial Positions
     std::vector<int32_t> initial_positions;
@@ -147,9 +150,12 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
         // Low Level Set: Register
         bool set2registers(int32_t registers[]);
         bool set2registers(std::vector<int32_t> registers);         // Overwrite (vector<T>)
+        bool set_turns(float turns[]);
+        bool set_turns(std::vector<float> turns);
 
         // Low Level Get: Register
-        bool get_registers(std::vector<int32_t>& positions);
+        bool get_PosRegisters(std::vector<int32_t>& positions);
+        bool get_CurRegisters(std::vector<int16_t>& currents);
 
         // Power Off Functions
         bool set2Zeros();

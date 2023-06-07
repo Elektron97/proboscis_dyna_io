@@ -363,11 +363,11 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_dyna)
     }
 
     // Read Initial Position
-    if(!get_registers(initial_positions))
+    if(!get_PosRegisters(initial_positions))
         ROS_ERROR("Failed to read all initial positions of the motors.");
 }
 
-bool ExtPos_Dynamixel::get_registers(std::vector<int32_t>& positions)
+bool ExtPos_Dynamixel::get_PosRegisters(std::vector<int32_t>& positions)
 {
     dxl_error = 0;
     dxl_comm_result = COMM_TX_FAIL;
@@ -400,8 +400,47 @@ bool ExtPos_Dynamixel::get_registers(std::vector<int32_t>& positions)
     }
     else
     {
-        ROS_ERROR("Failed to get position! Result: %d", dxl_comm_result);
+        ROS_ERROR("Failed to get positions! Result: %d", dxl_comm_result);
         position_syncRead.clearParam();
+        return false;       
+    }
+}
+
+bool ExtPos_Dynamixel::get_CurRegisters(std::vector<int16_t>& currents)
+{
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Add all motors' id
+    int i = 1;
+    for(i; i <= n_motors; i++)
+    {
+        // Supposing that Motors ID are 1, 2, 3, 4, ..., n_motors
+        dxl_addparam_result = current_syncRead.addParam((uint8_t) i);
+        if (dxl_addparam_result != true) 
+        {
+            ROS_ERROR("Failed to addparam to groupSyncRead for Dynamixel ID %d", i);
+            break;
+        }
+    }
+
+    // Read all motors
+    dxl_comm_result = current_syncRead.txRxPacket();
+    if(dxl_comm_result == COMM_SUCCESS)
+    {
+        for(i = 1; i <= n_motors; i++)
+        {
+            currents.push_back(current_syncRead.getData((uint8_t) i, ADDR_PRESENT_CURRENT, CURRENT_BYTE));
+        }
+
+        current_syncRead.clearParam();
+        return true;
+    }
+    else
+    {
+        ROS_ERROR("Failed to get currents! Result: %d", dxl_comm_result);
+        current_syncRead.clearParam();
         return false;       
     }
 }
@@ -504,6 +543,36 @@ bool ExtPos_Dynamixel::set2registers(std::vector<int32_t> registers)
         motors_syncWrite.clearParam();
         return false;
     }
+}
+
+bool ExtPos_Dynamixel::set_turns(float turns[])
+{
+    // Convert in position register value
+    int32_t registers[n_motors];
+
+    // Start Conversion
+    int i = 0;
+    for(i; i < n_motors; i++)
+    {
+        registers[i] = (int32_t) (turns[i]*((float) ONE_TURN_REGISTER));
+    }
+
+    return set2registers(registers);
+}
+
+bool ExtPos_Dynamixel::set_turns(std::vector<float> turns)
+{
+    // Convert in position register value
+    int32_t registers[n_motors];
+
+    // Start Conversion
+    int i = 0;
+    for(i; i < n_motors; i++)
+    {
+        registers[i] = (int32_t) (turns[i]*((float) ONE_TURN_REGISTER));
+    }
+
+    return set2registers(registers);
 }
 
 bool ExtPos_Dynamixel::set2Zeros()

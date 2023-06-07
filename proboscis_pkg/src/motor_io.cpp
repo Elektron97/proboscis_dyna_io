@@ -17,7 +17,7 @@ using namespace std;        // std io
 string topic_tag = "/proboscis";
 string torque_topic_name = "/cmd_torque";
 
-// Current Dynamixel Object
+// Dynamixel Object
 Current_Dynamixel dyna_obj(N_MOTORS);
 
 // --- CallBacks --- //
