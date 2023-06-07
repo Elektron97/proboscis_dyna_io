@@ -445,6 +445,28 @@ bool ExtPos_Dynamixel::get_CurRegisters(std::vector<int16_t>& currents)
     }
 }
 
+bool ExtPos_Dynamixel::get_currents(std::vector<float>& currents)
+{
+    // Local Variable useful to convert
+    std::vector<int16_t> current_registers;
+    
+    if(get_CurRegisters(current_registers))
+    {
+        // Convert
+        for(i = 0; i < n_motors; i++)
+        {
+            currents[i] = register2Current(current_registers[i]); 
+        }
+
+        return true;
+    }
+    else
+    {
+        // Stop and get false
+        return false;
+    }
+}
+
 bool ExtPos_Dynamixel::set2registers(int32_t registers[])
 {
     // Error Handling

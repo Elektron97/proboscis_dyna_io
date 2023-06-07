@@ -160,6 +160,9 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
         bool get_PosRegisters(std::vector<int32_t>& positions);
         bool get_CurRegisters(std::vector<int16_t>& currents);
 
+        // Mid Level Get: Current
+        bool get_currents(std::vector<float>& currents);
+
         // Power Off Functions
         bool set2Zeros();
 };
