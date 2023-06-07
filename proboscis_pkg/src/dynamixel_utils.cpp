@@ -4,29 +4,15 @@
 // Include
 #include "proboscis_pkg/dynamixel_utils.h"
 
-// --- Dynamixel Class --- //
+// --- (Abstract) Dynamixel Class --- //
 // Constructor 
 template <typename T> Dynamixel_Motors<T>::Dynamixel_Motors()
 {
     // Open Communication
-    uint8_t dxl_error = 0;
-    int dxl_comm_result = COMM_TX_FAIL;
 
-    if(!portHandler->openPort()) 
-        ROS_ERROR("Failed to open the port!");
-
-    if(!portHandler->setBaudRate(BAUDRATE))
-        ROS_ERROR("Failed to set the baudrate!");
-}
-
-template <typename T> Dynamixel_Motors<T>::Dynamixel_Motors(int n_dyna)
-{
-    // Init n_motors
-    n_motors = n_dyna;
-
-    // Open Communication
-    uint8_t dxl_error = 0;
-    int dxl_comm_result = COMM_TX_FAIL;
+    // Init of these variables in the declaration
+    //uint8_t dxl_error = 0;
+    //int dxl_comm_result = COMM_TX_FAIL;
 
     if(!portHandler->openPort()) 
         ROS_ERROR("Failed to open the port!");
@@ -52,8 +38,8 @@ template <typename T> Dynamixel_Motors<T>::~Dynamixel_Motors()
 
 template <typename T> void Dynamixel_Motors<T>::powerOFF()
 {
-    uint8_t dxl_error = 0;
-    int dxl_comm_result = COMM_TX_FAIL;
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
 
     // Turn Off LED and Disable Torque
     int i = 0;
@@ -75,4 +61,308 @@ template <typename T> void Dynamixel_Motors<T>::powerOFF()
             //break;
         }
     }
+}
+/**************************************************************************/
+// --- Current Dynamixel Class --- //
+Current_Dynamixel::Current_Dynamixel(int n_dyna)
+{
+    // Init n_motors
+    n_motors = n_dyna;
+
+    // Error Handling
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+
+    // Turn On LED, Current Mode and Enable Torque
+    int i = 0;
+    for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
+    {
+        // LED
+        dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_ON, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to turn on LED for Dynamixel ID %d", i+1);
+            break;
+        }
+
+        // Current Drive Mode
+        dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_OP_MODE, CURRENT_MODE, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to set Current Mode for Dynamixel ID %d", i+1);
+            break;
+        }
+
+        // Enable Torque
+        dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Set Current to Zero in every motors
+    if(!set2Zeros())
+        ROS_ERROR("Failed to set all the torques to zero.");
+}
+
+bool Current_Dynamixel::set2Zeros()
+{
+    // Error Handling
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Double Array for cycle every motors
+    uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
+
+    // Add parameters to sync_write obj
+    int i = 0;
+    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+    {
+        param_goal_currents[i][0] = DXL_LOBYTE(0);
+        param_goal_currents[i][1] = DXL_HIBYTE(0);
+
+        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_currents[i]); // da sistemare
+        if (dxl_addparam_result != true)
+        {
+            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Send all data
+    dxl_comm_result = motors_syncWrite.txPacket();
+    if (dxl_comm_result == COMM_SUCCESS) 
+    {
+        for(i = 0; i < n_motors; i++)
+        {
+            ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", i+1, 0); 
+        }
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return true;
+    } 
+    else 
+    {
+        ROS_ERROR("Failed to set current! Result: %d", dxl_comm_result);
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return false;
+    }
+}
+
+bool Current_Dynamixel::set2registers(int16_t registers[])
+{
+    // Assert: check that dim(currents) = n_motors
+    //assert(sizeof(currents)/sizeof(int16_t) == n_motors);
+
+    // Error Handling
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Double Array for cycle every motors
+    uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
+
+    // Add parameters to sync_write obj
+    int i = 0;
+    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+    {
+        // Security Saturation on register values
+        if(!register_saturation(registers[i]))
+            ROS_WARN("Commanded Current are out of limits. Saturating...");
+
+
+        param_goal_currents[i][0] = DXL_LOBYTE(registers[i]);
+        param_goal_currents[i][1] = DXL_HIBYTE(registers[i]);
+
+        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_currents[i]); // da sistemare
+        if (dxl_addparam_result != true)
+        {
+            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Send all data
+    dxl_comm_result = motors_syncWrite.txPacket();
+    if (dxl_comm_result == COMM_SUCCESS) 
+    {
+        for(i = 0; i < n_motors; i++)
+        {
+            ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", i+1, registers[i]); 
+        }
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return true;
+    } 
+    else 
+    {
+        ROS_ERROR("Failed to set current! Result: %d", dxl_comm_result);
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return false;
+    }
+}
+
+bool Current_Dynamixel::set2registers(std::vector<int16_t> registers)
+{
+    // Assert: check that dim(currents) = n_motors
+    //assert(sizeof(currents)/sizeof(int16_t) == n_motors);
+
+    // Error Handling
+    dxl_error = 0;
+    dxl_comm_result = COMM_TX_FAIL;
+    int dxl_addparam_result = false;
+
+    // Double Array for cycle every motors
+    uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
+
+    // Add parameters to sync_write obj
+    int i = 0;
+    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
+    {
+        param_goal_currents[i][0] = DXL_LOBYTE(registers[i]);
+        param_goal_currents[i][1] = DXL_HIBYTE(registers[i]);
+
+        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_currents[i]); // da sistemare
+        if (dxl_addparam_result != true)
+        {
+            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
+            break;
+        }
+    }
+
+    // Send all data
+    dxl_comm_result = motors_syncWrite.txPacket();
+    if (dxl_comm_result == COMM_SUCCESS) 
+    {
+        for(i = 0; i < n_motors; i++)
+        {
+            ROS_INFO("setCurrent : [ID:%d] [CURRENT (register):%d]", i+1, registers[i]); 
+        }
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return true;
+    } 
+    else 
+    {
+        ROS_ERROR("Failed to set current! Result: %d", dxl_comm_result);
+        
+        // Clear Parameters
+        motors_syncWrite.clearParam();
+        return false;
+    }
+}
+
+bool Current_Dynamixel::set_currents(float currents[])
+{
+    int16_t registers[n_motors];
+
+    // Convert in Register Values
+    int i = 0;
+    for(i; i < n_motors; i++)
+    {
+        registers[i] = current2Register(currents[i]);
+    }
+
+    return set2registers(registers);
+}
+
+// Overloading
+bool Current_Dynamixel::set_currents(std::vector<float> currents)
+{
+    int16_t registers[n_motors];
+
+    // Convert in Register Values
+    int i = 0;
+    for(i; i < n_motors; i++)
+    {
+        registers[i] = current2Register(currents[i]);
+    }
+
+    return set2registers(registers);
+}
+
+bool Current_Dynamixel::set_torques(float torques[])
+{
+    int16_t registers[n_motors];
+
+    // Convert in Register Values
+    int i = 0;
+    for(i; i < n_motors; i++)
+    {
+        registers[i] = torque2Register(torques[i]);
+    }
+
+    return set2registers(registers);
+}
+
+// Overloading
+bool Current_Dynamixel::set_torques(std::vector<float> torques)
+{
+    int16_t registers[n_motors];
+
+    // Convert in Register Values
+    int i = 0;
+    for(i; i < n_motors; i++)
+    {
+        registers[i] = torque2Register(torques[i]);
+    }
+
+    return set2registers(registers);
+}
+
+/**************************************************************************/
+// --- Functions --- //
+int16_t current2Register(float current_value)
+{
+    return MAX_CURRENT_REGISTER*((int16_t) (current_value/MAX_CURRENT));
+}
+
+float register2Current(int16_t register_value)
+{
+    return MAX_CURRENT*((float) (register_value/MAX_CURRENT_REGISTER));
+}
+
+bool register_saturation(int16_t &register_value)
+{
+    // No need of sign function, because is only positive values
+    if(abs(register_value) > MAX_CURRENT_REGISTER)
+    {
+        register_value = ((int16_t) sign(register_value))*MAX_CURRENT_REGISTER;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+float sign(float x)
+{
+    /*SIGN FUNCTION:*/
+    if(x > 0)
+        return 1.0;
+    if(x < 0)
+        return -1.0;
+    else
+        return 0.0;
+}
+
+float torque2Current(float torque)
+{
+    return COEFF_2*torque*torque + COEFF_1*torque + COEFF_0;
+}
+
+int16_t torque2Register(float torque)
+{
+    return current2Register(torque2Current(torque));
 }

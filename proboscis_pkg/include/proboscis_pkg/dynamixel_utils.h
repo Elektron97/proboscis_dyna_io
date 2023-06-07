@@ -51,22 +51,41 @@ using namespace dynamixel;
 
 #define MAX_CURRENT_REGISTER    1193            // uint16_t | Max value in the current Register. Corresponds to MAX_CURRENT.
 
+// Mapping Torque - Current
+// current(torque) = coeff_2*torque^2 + coeff_1*torque + coeff_0
+#define COEFF_0 0.1327
+#define COEFF_1 0.5753
+#define COEFF_2 0.2030
+
+// Functions
+int16_t current2Register(float current_value);
+float   register2Current(int16_t register_value);
+bool    register_saturation(int16_t &register_value);
+float   torque2Current(float current);
+int16_t torque2Register(float torque);
+float   sign(float x);
+
 // (Abstract) Dynamixel Class
 template <typename T>
 class Dynamixel_Motors
 {
-    // --- Private Attributes --- //
-    // Communication Utils    
-    PortHandler *portHandler        = PortHandler::getPortHandler(DEVICE_NAME);
-    PacketHandler *packetHandler    = PacketHandler::getPacketHandler(BAUDRATE);
-    // N° of motors
-    int n_motors = 0;
+    // --- Protected Attributes --- //
+    protected:
+        // Communication Utils    
+        PortHandler *portHandler        = PortHandler::getPortHandler(DEVICE_NAME);
+        PacketHandler *packetHandler    = PacketHandler::getPacketHandler(BAUDRATE);
+        
+        // N° of motors
+        int n_motors = 0;
+
+        // Error Handling
+        uint8_t dxl_error = 0;
+        int dxl_comm_result = COMM_TX_FAIL;
 
     // Methods
     public:
         // --- Constructor --- //
         Dynamixel_Motors();
-        Dynamixel_Motors(int n_dyna);
         
         // --- Deconstructor --- //
         ~Dynamixel_Motors();
@@ -81,9 +100,30 @@ class Dynamixel_Motors
 };
 
 // Current Dynamixel
-/*class Current_Dynamixel: public Dynamixel_Motors<int16_t>
+class Current_Dynamixel: public Dynamixel_Motors<int16_t>
 {
+    // Init with CURRENT address
+    GroupSyncWrite motors_syncWrite = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_CURRENT, CURRENT_BYTE);
 
-}*/
+    public:
+        // --- Constructor --- //
+        Current_Dynamixel(int n_dyna);
+
+        // --- Methods --- //
+        // Low Level Set: Register
+        bool set2registers(int16_t registers[]);
+        bool set2registers(std::vector<int16_t> registers);         // Overwrite (vector<T>)
+        
+        // Mid Level Set: Current
+        bool set_currents(float currents[]);
+        bool set_currents(std::vector<float> currents);             // Overwrite (vector<T>)
+
+        // High Level Set: Torque   
+        bool set_torques(float torques[]);
+        bool set_torques(std::vector<float> torques);               // Overwrite (vector<T>)
+
+        // Power Off Functions
+        bool set2Zeros();
+};
 
 #endif /* DYNAMIXEL_UTILS_H_ */
