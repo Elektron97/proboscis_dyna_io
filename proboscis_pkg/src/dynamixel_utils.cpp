@@ -554,7 +554,7 @@ bool ExtPos_Dynamixel::set_turns(float turns[])
     int i = 0;
     for(i; i < n_motors; i++)
     {
-        registers[i] = (int32_t) (turns[i]*((float) ONE_TURN_REGISTER));
+        registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
     }
 
     return set2registers(registers);
@@ -569,7 +569,7 @@ bool ExtPos_Dynamixel::set_turns(std::vector<float> turns)
     int i = 0;
     for(i; i < n_motors; i++)
     {
-        registers[i] = (int32_t) (turns[i]*((float) ONE_TURN_REGISTER));
+        registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
     }
 
     return set2registers(registers);
