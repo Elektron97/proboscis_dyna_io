@@ -42,7 +42,7 @@ template <typename T> void Dynamixel_Motors<T>::powerOFF()
     dxl_comm_result = COMM_TX_FAIL;
 
     // Turn Off LED and Disable Torque
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
     {
         // LED
@@ -75,7 +75,7 @@ Current_Dynamixel::Current_Dynamixel(int n_dyna)
     //dxl_comm_result = COMM_TX_FAIL;
 
     // Turn On LED, Current Mode and Enable Torque
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
     {
         // LED
@@ -119,7 +119,7 @@ bool Current_Dynamixel::set2Zeros()
     uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
 
     // Add parameters to sync_write obj
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         param_goal_currents[i][0] = DXL_LOBYTE(0);
@@ -170,7 +170,7 @@ bool Current_Dynamixel::set2registers(int16_t registers[])
     uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
 
     // Add parameters to sync_write obj
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         // Security Saturation on register values
@@ -226,7 +226,7 @@ bool Current_Dynamixel::set2registers(std::vector<int16_t> registers)
     uint8_t param_goal_currents[n_motors][CURRENT_BYTE];
 
     // Add parameters to sync_write obj
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         param_goal_currents[i][0] = DXL_LOBYTE(registers[i]);
@@ -268,7 +268,7 @@ bool Current_Dynamixel::set_currents(float currents[])
     int16_t registers[n_motors];
 
     // Convert in Register Values
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++)
     {
         registers[i] = current2Register(currents[i]);
@@ -283,7 +283,7 @@ bool Current_Dynamixel::set_currents(std::vector<float> currents)
     int16_t registers[n_motors];
 
     // Convert in Register Values
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++)
     {
         registers[i] = current2Register(currents[i]);
@@ -297,7 +297,7 @@ bool Current_Dynamixel::set_torques(float torques[])
     int16_t registers[n_motors];
 
     // Convert in Register Values
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++)
     {
         registers[i] = torque2Register(torques[i]);
@@ -312,7 +312,7 @@ bool Current_Dynamixel::set_torques(std::vector<float> torques)
     int16_t registers[n_motors];
 
     // Convert in Register Values
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++)
     {
         registers[i] = torque2Register(torques[i]);
@@ -334,7 +334,7 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_dyna)
     //dxl_comm_result = COMM_TX_FAIL;
 
     // Turn On LED, Current Mode and Enable Torque
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
     {
         // LED
@@ -374,7 +374,7 @@ bool ExtPos_Dynamixel::get_PosRegisters(std::vector<int32_t>& positions)
     int dxl_addparam_result = false;
 
     // Add all motors' id
-    int i = 1;
+    i = 1;
     for(i; i <= n_motors; i++)
     {
         // Supposing that Motors ID are 1, 2, 3, 4, ..., n_motors
@@ -413,7 +413,7 @@ bool ExtPos_Dynamixel::get_CurRegisters(std::vector<int16_t>& currents)
     int dxl_addparam_result = false;
 
     // Add all motors' id
-    int i = 1;
+    i = 1;
     for(i; i <= n_motors; i++)
     {
         // Supposing that Motors ID are 1, 2, 3, 4, ..., n_motors
@@ -456,7 +456,7 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[])
     uint8_t param_goal_positions[n_motors][POSITION_BYTE];
 
     // Add parameters to sync_write obj
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
@@ -506,7 +506,7 @@ bool ExtPos_Dynamixel::set2registers(std::vector<int32_t> registers)
     uint8_t param_goal_positions[n_motors][POSITION_BYTE];
 
     // Add parameters to sync_write obj
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
@@ -551,7 +551,7 @@ bool ExtPos_Dynamixel::set_turns(float turns[])
     int32_t registers[n_motors];
 
     // Start Conversion
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++)
     {
         registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
@@ -566,7 +566,7 @@ bool ExtPos_Dynamixel::set_turns(std::vector<float> turns)
     int32_t registers[n_motors];
 
     // Start Conversion
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++)
     {
         registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
@@ -586,7 +586,7 @@ bool ExtPos_Dynamixel::set2Zeros()
     uint8_t param_goal_positions[n_motors][POSITION_BYTE];
 
     // Add parameters to sync_write obj
-    int i = 0;
+    i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(initial_positions[i]));

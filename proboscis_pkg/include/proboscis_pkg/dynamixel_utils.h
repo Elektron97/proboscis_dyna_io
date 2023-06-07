@@ -87,6 +87,9 @@ class Dynamixel_Motors
         uint8_t dxl_error = 0;
         int dxl_comm_result = COMM_TX_FAIL;
 
+        // Iterator
+        int i;  // Increase Comput. Efficiency
+
     // Methods
     public:
         // --- Constructor --- //
