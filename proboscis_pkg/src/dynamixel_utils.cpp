@@ -174,7 +174,7 @@ bool Current_Dynamixel::set2registers(int16_t registers[])
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         // Security Saturation on register values
-        if(!register_saturation(registers[i]))
+        if(!registerCur_saturation(registers[i]))
             ROS_WARN("Commanded Current are out of limits. Saturating...");
 
 
@@ -229,6 +229,10 @@ bool Current_Dynamixel::set2registers(std::vector<int16_t> registers)
     i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
+        // Security Saturation on register values
+        if(!registerCur_saturation(registers[i]))
+            ROS_WARN("Commanded Current are out of limits. Saturating...");
+
         param_goal_currents[i][0] = DXL_LOBYTE(registers[i]);
         param_goal_currents[i][1] = DXL_HIBYTE(registers[i]);
 
@@ -481,6 +485,10 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[])
     i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
+        // Security Saturation on register values
+        if(!registerTurns_saturation(registers[i]))
+            ROS_WARN("Commanded Current are out of limits. Saturating...");
+
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][2] = DXL_LOBYTE(DXL_HIWORD(registers[i]));
@@ -531,6 +539,10 @@ bool ExtPos_Dynamixel::set2registers(std::vector<int32_t> registers)
     i = 0;
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
+        // Security Saturation on register values
+        if(!registerTurns_saturation(registers[i]))
+            ROS_WARN("Commanded Current are out of limits. Saturating...");
+
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][2] = DXL_LOBYTE(DXL_HIWORD(registers[i]));
@@ -659,12 +671,26 @@ float register2Current(int16_t register_value)
     return MAX_CURRENT*((float) (register_value/MAX_CURRENT_REGISTER));
 }
 
-bool register_saturation(int16_t &register_value)
+bool registerCur_saturation(int16_t &register_value) 
 {
     // No need of sign function, because is only positive values
     if(abs(register_value) > MAX_CURRENT_REGISTER)
     {
         register_value = ((int16_t) sign(register_value))*MAX_CURRENT_REGISTER;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool registerTurns_saturation(int32_t &register_value)
+{
+    // No need of sign function, because is only positive values
+    if(abs(register_value) > ((int32_t) MAX_TURNS)*register_value)
+    {
+        register_value = (int32_t) (sign(register_value)*MAX_TURNS);
         return false;
     }
     else

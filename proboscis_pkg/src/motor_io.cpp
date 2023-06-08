@@ -16,12 +16,15 @@ using namespace std;        // std io
 // --- Global Variables --- //
 string topic_tag = "/proboscis";
 string torque_topic_name = "/cmd_torque";
+string turns_topic_name = "/cmd_turns";
 
 // Dynamixel Object
-Current_Dynamixel dyna_obj(N_MOTORS);
+//Current_Dynamixel dyna_obj(N_MOTORS);
+ExtPos_Dynamixel dyna_obj(N_MOTORS);
 
 // --- CallBacks --- //
 void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
+void turns_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
 
 // --- Main --- //
 int main(int argc, char** argv)
@@ -32,7 +35,8 @@ int main(int argc, char** argv)
 
     // --- Define Subscribers and Publishers --- //
     // Subscribing: Writing into the motors
-    ros::Subscriber torque_sub = node_obj.subscribe(topic_tag.append(torque_topic_name), QUEUE_SIZE, torque_callBack);
+    //ros::Subscriber torque_sub = node_obj.subscribe(topic_tag.append(torque_topic_name), QUEUE_SIZE, torque_callBack);
+    ros::Subscriber turns_sub = node_obj.subscribe(topic_tag.append(turns_topic_name), QUEUE_SIZE, turns_callBack);
 
     // --- Main Loop --- //
     ros::spin(); // only subscribing ros node
@@ -47,7 +51,7 @@ void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
     ROS_INFO("Torque command received.");
 
     // Verify n of motors
-    if(msg->layout.dim[0].size == N_MOTORS)
+    /*if(msg->layout.dim[0].size == N_MOTORS)
     {
         //Extract array of torques
         if(dyna_obj.set_torques(msg->data))
@@ -61,6 +65,29 @@ void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
     else
     {
         ROS_ERROR("/cmd_torque msg is uncorrect. Wrong number of motors.");
+        return;
+    }*/
+}
+
+void turns_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
+{    
+    ROS_INFO("Turns command received.");
+
+    // Verify n of motors
+    if(msg->data.size() == N_MOTORS)
+    {
+        //Extract array of torques
+        if(dyna_obj.set_turns(msg->data))
+            ROS_INFO("Turns command written correctly on Dynamixels.");
+        else
+        {
+            ROS_ERROR("Turns command written uncorrectly on Dynamixels.");
+            return;
+        }
+    }
+    else
+    {
+        ROS_ERROR("/cmd_turns msg is uncorrect. Wrong number of motors.");
         return;
     }
 }

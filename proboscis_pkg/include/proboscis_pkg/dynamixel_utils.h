@@ -36,7 +36,8 @@ using namespace dynamixel;
 #define TORQUE_DISABLE          0
 #define CURRENT_MODE            0
 #define VELOCITY_MODE           1
-#define EXTENDED_POSITION_MODE  5
+#define EXTENDED_POSITION_MODE  4
+#define CURRENT_POSITION_MODE   5
 
 // Data Length
 #define POSITION_BYTE           4
@@ -55,6 +56,7 @@ using namespace dynamixel;
 
 #define MAX_CURRENT_REGISTER    1193            // uint16_t | Max value in the current Register. Corresponds to MAX_CURRENT.
 #define ONE_TURN_REGISTER       4095            // uint16_t | Position value that corrisponds to only one turn
+#define MAX_TURNS               5.0             // float    | Max Turns
 
 // Mapping Torque - Current
 // current(torque) = coeff_2*torque^2 + coeff_1*torque + coeff_0
@@ -65,7 +67,8 @@ using namespace dynamixel;
 // Functions
 int16_t current2Register(float current_value);
 float   register2Current(int16_t register_value);
-bool    register_saturation(int16_t &register_value);
+bool    registerCur_saturation(int16_t &register_value);
+bool    registerTurns_saturation(int32_t &register_value);
 float   torque2Current(float current);
 int16_t torque2Register(float torque);
 float   sign(float x);
