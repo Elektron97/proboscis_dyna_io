@@ -486,8 +486,8 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[])
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         // Security Saturation on register values
-        if(!registerTurns_saturation(registers[i]))
-            ROS_WARN("Commanded Current are out of limits. Saturating...");
+        //if(!registerTurns_saturation(registers[i]))
+        //    ROS_WARN("Commanded Current are out of limits. Saturating...");
 
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
@@ -540,8 +540,8 @@ bool ExtPos_Dynamixel::set2registers(std::vector<int32_t> registers)
     for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
     {
         // Security Saturation on register values
-        if(!registerTurns_saturation(registers[i]))
-            ROS_WARN("Commanded Current are out of limits. Saturating...");
+        //if(!registerTurns_saturation(registers[i]))
+        //    ROS_WARN("Commanded Current are out of limits. Saturating...");
 
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
@@ -588,6 +588,10 @@ bool ExtPos_Dynamixel::set_turns(float turns[])
     i = 0;
     for(i; i < n_motors; i++)
     {
+        // Security Saturation on turns values
+        if(!turns_saturation(turns[i]))
+            ROS_WARN("Commanded Turns are out of limits. Saturating...");
+
         registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
     }
 
@@ -603,6 +607,10 @@ bool ExtPos_Dynamixel::set_turns(std::vector<float> turns)
     i = 0;
     for(i; i < n_motors; i++)
     {
+        // Security Saturation on turns values
+        if(!turns_saturation(turns[i]))
+            ROS_WARN("Commanded Turns are out of limits. Saturating...");
+
         registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
     }
 
@@ -685,12 +693,18 @@ bool registerCur_saturation(int16_t &register_value)
     }
 }
 
-bool registerTurns_saturation(int32_t &register_value)
+bool turns_saturation(float &turn) 
 {
     // No need of sign function, because is only positive values
-    if(abs(register_value) > ((int32_t) MAX_TURNS)*register_value)
+    if(turn > MAX_TURNS)
     {
-        register_value = (int32_t) (sign(register_value)*MAX_TURNS);
+        turn = MAX_TURNS;
+        return false;
+    }
+    // No negative turns
+    else if (turn < 0)
+    {
+        turn = 0.0;
         return false;
     }
     else

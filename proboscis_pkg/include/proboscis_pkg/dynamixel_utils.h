@@ -68,7 +68,7 @@ using namespace dynamixel;
 int16_t current2Register(float current_value);
 float   register2Current(int16_t register_value);
 bool    registerCur_saturation(int16_t &register_value);
-bool    registerTurns_saturation(int32_t &register_value);
+bool    turns_saturation(float &turn);
 float   torque2Current(float current);
 int16_t torque2Register(float torque);
 float   sign(float x);
@@ -148,14 +148,20 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
     // Initial Positions
     std::vector<int32_t> initial_positions;
 
+    // These methods are private because
+    // there are no saturation on that
+    // The user has to use only the set_turns()
+    // method.
+    
+    // Low Level Set: Register
+    bool set2registers(int32_t registers[]);
+    bool set2registers(std::vector<int32_t> registers);         // Overwrite (vector<T>)
+
     public:
         // --- Constructor --- //
         ExtPos_Dynamixel(int n_dyna);
 
         // --- Methods --- //
-        // Low Level Set: Register
-        bool set2registers(int32_t registers[]);
-        bool set2registers(std::vector<int32_t> registers);         // Overwrite (vector<T>)
         bool set_turns(float turns[]);
         bool set_turns(std::vector<float> turns);
 
