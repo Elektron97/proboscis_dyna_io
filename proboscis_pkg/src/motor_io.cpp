@@ -19,7 +19,6 @@ string torque_topic_name = "/cmd_torque";
 string turns_topic_name = "/cmd_turns";
 
 // Dynamixel Object
-//Current_Dynamixel dyna_obj(N_MOTORS);
 ExtPos_Dynamixel dyna_obj(N_MOTORS);
 
 // --- CallBacks --- //

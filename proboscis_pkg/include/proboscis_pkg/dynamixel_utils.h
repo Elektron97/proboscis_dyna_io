@@ -148,11 +148,12 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
     // Initial Positions
     std::vector<int32_t> initial_positions;
 
-    // These methods are private because
-    // there are no saturation on that
-    // The user has to use only the set_turns()
-    // method.
-    
+    /************************************************  
+    *   These methods are private because           *
+    *   there are no saturation on them.            *
+    *   The user has to use only the set_turns()    *
+    *   method.                                     *
+    *************************************************/
     // Low Level Set: Register
     bool set2registers(int32_t registers[]);
     bool set2registers(std::vector<int32_t> registers);         // Overwrite (vector<T>)
