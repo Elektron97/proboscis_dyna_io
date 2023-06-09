@@ -13,7 +13,7 @@
 #include "std_msgs/Float32MultiArray.h"
 
 // --- Define --- //
-#define NODE_FREQUENCY  10.0
+//#define NODE_FREQUENCY  100.0 //Not used yet
 #define QUEUE_SIZE      10
 #define N_MOTORS        7
 
