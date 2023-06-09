@@ -37,3 +37,23 @@ void Ros_Dynamixel_Node::turns_callBack(const std_msgs::Float32MultiArray::Const
         return;
     }
 }
+
+void Ros_Dynamixel_Node::publish_currents()
+{
+    if(!dyna_obj.get_currents(motor_currents.data))
+    {
+        ROS_ERROR("Failed to read currents.");
+        // To Decide: If the read failed, publish the old one
+        return;
+    }
+    else
+    {
+        // Publish only if the reading is ok
+        current_pub.publish(motor_currents);
+    }
+}
+
+void Ros_Dynamixel_Node::sleep()
+{
+    loop_rate.sleep();
+}
