@@ -39,7 +39,7 @@ void Ros_Dynamixel_Node::turns_callBack(const std_msgs::Float32MultiArray::Const
     }
 
     // Publish Currents
-    publish_currents();
+    //publish_currents();
 }
 
 void Ros_Dynamixel_Node::publish_currents()
@@ -58,7 +58,7 @@ void Ros_Dynamixel_Node::publish_currents()
     }
 }
 
-void Ros_Dynamixel_Node::sleep()
+void Ros_Dynamixel_Node::main_loop(const ros::TimerEvent& event)
 {
-    loop_rate.sleep();
+    publish_currents();
 }

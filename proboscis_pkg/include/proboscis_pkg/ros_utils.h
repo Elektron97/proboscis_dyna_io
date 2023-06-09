@@ -13,7 +13,7 @@
 #include "std_msgs/Float32MultiArray.h"
 
 // --- Define --- //
-//#define NODE_FREQUENCY  100.0 //Not used yet
+#define NODE_FREQUENCY  50.0    // [Hz] Max publish rate is ~31 Hz
 #define QUEUE_SIZE      10
 #define N_MOTORS        7
 
@@ -34,13 +34,14 @@ class Ros_Dynamixel_Node
     // - Ros objects - //
     ros::NodeHandle node_handle;
     // Sub & Pub objects
-    ros::Subscriber turns_sub = node_handle.subscribe(topic_tag + turns_topic_name, QUEUE_SIZE, &Ros_Dynamixel_Node::turns_callBack, this);
-    ros::Publisher current_pub = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + current_topic_name, QUEUE_SIZE);
+    ros::Subscriber turns_sub   = node_handle.subscribe(topic_tag + turns_topic_name, QUEUE_SIZE, &Ros_Dynamixel_Node::turns_callBack, this);
+    ros::Publisher current_pub  = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + current_topic_name, QUEUE_SIZE);
 
-    // Loop Rate
-    ros::Rate loop_rate = ros::Rate(NODE_FREQUENCY);
+    // Timer
+    ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Ros_Dynamixel_Node::main_loop, this);
+
     // - Dynamixel Object - //
-    ExtPos_Dynamixel dyna_obj = ExtPos_Dynamixel(N_MOTORS);
+    ExtPos_Dynamixel dyna_obj   = ExtPos_Dynamixel(N_MOTORS);
 
     // Useful Variables
     std_msgs::Float32MultiArray motor_currents;
@@ -58,8 +59,8 @@ class Ros_Dynamixel_Node
         // Publisher
         void publish_currents();
 
-        // Sleep
-        void sleep();
+        // Main Loop
+        void main_loop(const ros::TimerEvent& event);
 };
 
 
