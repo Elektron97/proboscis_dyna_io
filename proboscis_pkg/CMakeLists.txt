@@ -20,7 +20,9 @@ include_directories(
 add_library(dynamixel_utils src/dynamixel_utils.cpp)
 target_link_libraries(dynamixel_utils ${catkin_LIBRARIES})
 
-# This will create executable of the node
+# ROS Library - To Do
+add_library(ros_utils src/ros_utils.cpp)
+target_link_libraries(ros_utils ${catkin_LIBRARIES} dynamixel_utils)
+
 add_executable(motor_io src/motor_io.cpp)
-# This will link executable to the appropriate libraries (including home-made libraries)
-target_link_libraries(motor_io ${catkin_LIBRARIES} dynamixel_utils)
+target_link_libraries(motor_io ${catkin_LIBRARIES} ros_utils)
