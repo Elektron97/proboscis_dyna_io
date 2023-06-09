@@ -508,7 +508,7 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[])
     {
         for(i = 0; i < n_motors; i++)
         {
-            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, 0); 
+            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, registers[i]); 
         }
         
         // Clear Parameters
@@ -562,7 +562,7 @@ bool ExtPos_Dynamixel::set2registers(std::vector<int32_t> registers)
     {
         for(i = 0; i < n_motors; i++)
         {
-            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, 0); 
+            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, registers[i]); 
         }
         
         // Clear Parameters
@@ -676,7 +676,7 @@ int16_t current2Register(float current_value)
 
 float register2Current(int16_t register_value)
 {
-    return MAX_CURRENT*((float) (register_value/MAX_CURRENT_REGISTER));
+    return MAX_CURRENT*(((float) register_value)/ ((float) MAX_CURRENT_REGISTER));
 }
 
 bool registerCur_saturation(int16_t &register_value) 

@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
     <!-- /// Nodes /// -->
-    <!-- Motor I/O -->
-    <node name="motor_io" pkg="proboscis_pkg" type="motor_io" output="screen"/>
+    <!-- Motor I/O: Visualize only WARN and ERROR print -->
+    <!--<node name="motor_io" pkg="proboscis_pkg" type="motor_io" output="screen"/>-->
+    <node name="motor_io" pkg="proboscis_pkg" type="motor_io"/>
 
 </launch>

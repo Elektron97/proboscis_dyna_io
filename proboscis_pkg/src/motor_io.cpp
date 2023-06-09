@@ -15,19 +15,9 @@ int main(int argc, char** argv)
     Ros_Dynamixel_Node node_obj;
 
     // --- Main Loop --- //
-    // only subscribing ros node
-    //ros::spin();
+    ros::spin();
 
-    // publishing node
-    while(ros::ok())
-    {
-        // Read Commands
-        ros::spinOnce();
-
-        // Publish
-        node_obj.publish_currents();
-        node_obj.sleep();
-    }
-    // --- End of Program --- //    
+    // --- End of Program --- // 
+    ROS_INFO("End of Main");   
     return 0;
 }

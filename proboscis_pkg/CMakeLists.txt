@@ -20,7 +20,7 @@ include_directories(
 add_library(dynamixel_utils src/dynamixel_utils.cpp)
 target_link_libraries(dynamixel_utils ${catkin_LIBRARIES})
 
-# ROS Library - To Do
+# ROS Library - To Debug
 add_library(ros_utils src/ros_utils.cpp)
 target_link_libraries(ros_utils ${catkin_LIBRARIES} dynamixel_utils)
 

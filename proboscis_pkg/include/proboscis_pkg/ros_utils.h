@@ -13,7 +13,7 @@
 #include "std_msgs/Float32MultiArray.h"
 
 // --- Define --- //
-#define NODE_FREQUENCY  100.0
+#define NODE_FREQUENCY  10.0
 #define QUEUE_SIZE      10
 #define N_MOTORS        7
 
@@ -21,7 +21,7 @@
 using namespace std;        // std io
 
 // --- Global Variables --- //
-string topic_tag = "/proboscis";
+const string topic_tag = "/proboscis";
 const string torque_topic_name = "/cmd_torque";
 const string turns_topic_name = "/cmd_turns";
 const string current_topic_name = "/read_currents";
@@ -34,8 +34,8 @@ class Ros_Dynamixel_Node
     // - Ros objects - //
     ros::NodeHandle node_handle;
     // Sub & Pub objects
-    ros::Subscriber turns_sub = node_handle.subscribe(topic_tag.append(turns_topic_name), QUEUE_SIZE, &Ros_Dynamixel_Node::turns_callBack, this);
-    ros::Publisher current_pub = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag.append(current_topic_name), QUEUE_SIZE);
+    ros::Subscriber turns_sub = node_handle.subscribe(topic_tag + turns_topic_name, QUEUE_SIZE, &Ros_Dynamixel_Node::turns_callBack, this);
+    ros::Publisher current_pub = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + current_topic_name, QUEUE_SIZE);
 
     // Loop Rate
     ros::Rate loop_rate = ros::Rate(NODE_FREQUENCY);
