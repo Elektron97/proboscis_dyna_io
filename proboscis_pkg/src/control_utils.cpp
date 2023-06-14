@@ -42,10 +42,10 @@ void Control_Node::main_loop(const ros::TimerEvent& event)
 void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd)
 {
     // Simple boolean mapping (only for testing)
-    for(int i = 0; i < N_BUTTONS; i++)
+    for(int i = 0; i < N_MOTORS; i++)
     {   
         if(joystick_input.buttons[i] == 1)
-            motor_cmd.data[i] = 1.0;
+            motor_cmd.data[i] = 5.0;
         else
             motor_cmd.data[i] = 0.0;
     }
