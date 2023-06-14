@@ -13,17 +13,29 @@
 #include "std_msgs/Float32MultiArray.h"
 
 // --- Define --- //
-#define NODE_FREQUENCY  50.0    // [Hz] Max publish rate is ~31 Hz
+#define NODE_FREQUENCY  50.0
 #define QUEUE_SIZE      1
+
+// n° motors
+#define N_MOTORS        7
+
+// n° of buttons
+#define N_BUTTONS       11
 
 // --- Namespace --- //
 using namespace std;        // std io
 
+// --- Enum --- //
+//enum Joystick_Buttons {A, B, X, Y, LB, RB, BACK, START, POWER, L3, R3};
+
 // --- Global Variables --- //
+// Topic Names
 const string topic_tag = "/proboscis";
 const string turns_topic_name = "/cmd_turns";
+const string joy_topic_name = "/joy";
 
 // ---  Function Signatures --- //
+void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd);
 
 // ---  Classes --- //
 class Control_Node
@@ -31,7 +43,29 @@ class Control_Node
     // - Ros objects - //
     ros::NodeHandle node_handle;
     // Sub & Pub objects
+    ros::Subscriber sub_joy     = node_handle.subscribe(joy_topic_name, QUEUE_SIZE, &Control_Node::joy_callBack, this);
+    ros::Publisher  pub_turns   = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + turns_topic_name, QUEUE_SIZE);
+    // Timer for main loop
+    ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Control_Node::main_loop, this);
 
+    // Turn commands
+    std_msgs::Float32MultiArray turn_commands;
+
+    // Callbacks (private method)
+    void joy_callBack(const sensor_msgs::Joy::ConstPtr& msg);
+
+    public:
+        // Constructor
+        Control_Node();
+
+        // Deconstructor
+        ~Control_Node();
+
+        // Publisher
+        void publish_turns();
+
+        // Main Loop
+        void main_loop(const ros::TimerEvent& event);
 };
 
 

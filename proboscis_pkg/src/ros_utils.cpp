@@ -37,9 +37,6 @@ void Ros_Dynamixel_Node::turns_callBack(const std_msgs::Float32MultiArray::Const
         ROS_ERROR("/cmd_turns msg is uncorrect. Wrong number of motors.");
         return;
     }
-
-    // Publish Currents
-    //publish_currents();
 }
 
 void Ros_Dynamixel_Node::publish_currents()
@@ -60,5 +57,6 @@ void Ros_Dynamixel_Node::publish_currents()
 
 void Ros_Dynamixel_Node::main_loop(const ros::TimerEvent& event)
 {
+    // Publish /read_currents
     publish_currents();
 }
