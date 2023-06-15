@@ -22,6 +22,8 @@
 // n° of buttons
 #define N_BUTTONS       11
 
+#define MAX_CMD_TURNS   5.0
+
 // --- Namespace --- //
 using namespace std;        // std io
 

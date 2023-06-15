@@ -24,7 +24,7 @@ void Control_Node::joy_callBack(const sensor_msgs::Joy::ConstPtr& msg)
 {
     // --- Read Joystick and map into turn commands --- //
     // test pointer
-    joy2Motors(*msg, turn_commands, 5.0);
+    joy2Motors(*msg, turn_commands, MAX_CMD_TURNS);
 }
 
 void Control_Node::publish_turns()
