@@ -57,6 +57,7 @@ using namespace dynamixel;
 #define MAX_CURRENT_REGISTER    1193            // uint16_t | Max value in the current Register. Corresponds to MAX_CURRENT.
 #define ONE_TURN_REGISTER       4095            // uint16_t | Position value that corrisponds to only one turn
 #define MAX_TURNS               5.0             // float    | Max Turns
+#define MAX_VELOCITY_REGISTER   1023            // uint32_t
 
 // Mapping Torque - Current
 // current(torque) = coeff_2*torque^2 + coeff_1*torque + coeff_0
@@ -72,6 +73,7 @@ bool    turns_saturation(float &turn);
 float   torque2Current(float current);
 int16_t torque2Register(float torque);
 float   sign(float x);
+int32_t velocity2Register(float velocity_value);
 
 // (Abstract) Dynamixel Class
 template <typename T>
@@ -172,6 +174,40 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
 
         // Mid Level Get: Current
         bool get_currents(std::vector<float>& currents);
+
+        // Power Off Functions
+        bool set2Zeros();
+};
+
+// Velocity Dynamixel with Current Feedback
+class Velocity_Dynamixel: public Dynamixel_Motors<int32_t>
+{
+    // Init with POSITION address
+    GroupSyncWrite  motors_syncWrite    = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_VELOCITY, VELOCITY_BYTE);
+    GroupSyncRead   position_syncRead   = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_POSITION, POSITION_BYTE);
+    GroupSyncRead   current_syncRead    = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_CURRENT, CURRENT_BYTE);
+
+    // Calibrated Positions
+    std::vector<int32_t> calibrated_positions;
+
+    public:
+        // --- Constructor --- //
+       Velocity_Dynamixel(int n_dyna);
+
+        // --- Methods --- //
+        // Low Level Set: Register
+        bool set2registers(int32_t registers[]);
+        bool set2registers(std::vector<int32_t> registers);         // Overwrite (vector<T>)
+
+        // Low Level Get: Register
+        bool get_CurRegisters(std::vector<int16_t>& currents);
+        bool get_PosRegisters(std::vector<int32_t>& positions);
+
+        // Mid Level Get: Current
+        bool get_currents(std::vector<float>& currents);
+
+        // High Level Set: Velocities
+        bool set_velocities(std::vector<float> velocities);
 
         // Power Off Functions
         bool set2Zeros();

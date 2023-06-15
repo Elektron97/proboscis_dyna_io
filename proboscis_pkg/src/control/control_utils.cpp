@@ -24,7 +24,7 @@ void Control_Node::joy_callBack(const sensor_msgs::Joy::ConstPtr& msg)
 {
     // --- Read Joystick and map into turn commands --- //
     // test pointer
-    joy2Motors(*msg, turn_commands);
+    joy2Motors(*msg, turn_commands, 5.0);
 }
 
 void Control_Node::publish_turns()
@@ -39,13 +39,13 @@ void Control_Node::main_loop(const ros::TimerEvent& event)
 }
 
 // --- FUNCTIONS --- //
-void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd)
+void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd, float max_value)
 {
     // Simple boolean mapping (only for testing)
     for(int i = 0; i < N_MOTORS; i++)
     {   
         if(joystick_input.buttons[i] == 1)
-            motor_cmd.data[i] = 5.0;
+            motor_cmd.data[i] = max_value;
         else
             motor_cmd.data[i] = 0.0;
     }

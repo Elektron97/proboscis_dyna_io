@@ -35,7 +35,7 @@ const string turns_topic_name = "/cmd_turns";
 const string joy_topic_name = "/joy";
 
 // ---  Function Signatures --- //
-void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd);
+void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd, float max_value);
 
 // ---  Classes --- //
 class Control_Node
@@ -67,7 +67,5 @@ class Control_Node
         // Main Loop
         void main_loop(const ros::TimerEvent& event);
 };
-
-
 
 #endif /* CONTROL_UTILS_H_ */
