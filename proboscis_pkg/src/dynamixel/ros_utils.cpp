@@ -1,7 +1,7 @@
 /****************************************
  * Source code for ROS Node Library     *
  ****************************************/
-#include "proboscis_pkg/ros_utils.h"
+#include "proboscis_pkg/dynamixel/ros_utils.h"
 
 // --- ROS DYNAMIXEL NODE CLASS --- //
 Ros_Dynamixel_Node::Ros_Dynamixel_Node()

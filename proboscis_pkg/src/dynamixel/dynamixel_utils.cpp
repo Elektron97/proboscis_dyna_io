@@ -2,7 +2,7 @@
  * Source code for Dynamixel Library    *
  ****************************************/
 // Include
-#include "proboscis_pkg/dynamixel_utils.h"
+#include "proboscis_pkg/dynamixel/dynamixel_utils.h"
 
 // --- (Abstract) Dynamixel Class --- //
 // Constructor 

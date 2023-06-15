@@ -1,7 +1,7 @@
 /********************************************
  * Source code for ROS Control Node Library *
  ********************************************/
-#include "proboscis_pkg/control_utils.h"
+#include "proboscis_pkg/control/control_utils.h"
 
 // --- ROS CONTROL NODE CLASS --- //
 // Constructor
