@@ -398,7 +398,7 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_dyna)
     //dxl_error = 0;
     //dxl_comm_result = COMM_TX_FAIL;
 
-    // Turn On LED, Current Mode and Enable Torque
+    // Turn On LED | Current Mode | Enable Torque | Profile velocity | Profile Acceleration
     i = 0;
     for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
     {
@@ -423,6 +423,22 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_dyna)
         if (dxl_comm_result != COMM_SUCCESS) 
         {
             ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+            break;
+        }
+
+        // Profile Velocity
+        dxl_comm_result = packetHandler->write4ByteTxRx(portHandler, i + 1, ADDR_PROFILE_VEL, PROFILE_VEL_VALUE, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to set profile velocity for Dynamixel ID %d", i+1);
+            break;
+        }
+        
+        // Profile Acceleration
+        dxl_comm_result = packetHandler->write4ByteTxRx(portHandler, i + 1, ADDR_PROFILE_ACC, PROFILE_ACC_VALUE, &dxl_error);
+        if (dxl_comm_result != COMM_SUCCESS) 
+        {
+            ROS_ERROR("Failed to set profile acceleration for Dynamixel ID %d", i+1);
             break;
         }
     }

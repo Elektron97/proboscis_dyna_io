@@ -28,6 +28,9 @@ using namespace dynamixel;
 // Present
 #define ADDR_PRESENT_POSITION   132
 #define ADDR_PRESENT_CURRENT    126
+// Profile
+#define ADDR_PROFILE_VEL        112     // 4 bytes
+#define ADDR_PROFILE_ACC        108     // 4 bytes
 
 // Value
 #define LED_ON                  1
@@ -38,6 +41,8 @@ using namespace dynamixel;
 #define VELOCITY_MODE           1
 #define EXTENDED_POSITION_MODE  4
 #define CURRENT_POSITION_MODE   5
+#define PROFILE_VEL_VALUE       100
+#define PROFILE_ACC_VALUE       10
 
 // Data Length
 #define POSITION_BYTE           4
