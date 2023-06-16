@@ -27,6 +27,13 @@ void Control_Node::joy_callBack(const sensor_msgs::Joy::ConstPtr& msg)
     joy2Motors(*msg, turn_commands, MAX_CMD_TURNS);
 }
 
+void Control_Node::current_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg)
+{
+    // --- Read Current and Implement PID Controller --- //
+    // Test: Only 1 motor to check if the control law is well implented
+    ROS_INFO("PID Control Law: %f", pid_obj.calculate(0.0, msg->data[0]));
+}
+
 void Control_Node::publish_turns()
 {
     pub_turns.publish(turn_commands);

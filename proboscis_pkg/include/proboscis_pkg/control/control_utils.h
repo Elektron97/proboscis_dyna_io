@@ -11,9 +11,11 @@
 // ROS msgs
 #include "sensor_msgs/Joy.h"
 #include "std_msgs/Float32MultiArray.h"
+// PID Library
+#include "pid/pid.h"
 
 // --- Define --- //
-#define NODE_FREQUENCY  50.0
+#define NODE_FREQUENCY  30.0
 #define QUEUE_SIZE      1
 
 // n° motors
@@ -23,6 +25,14 @@
 #define N_BUTTONS       11
 
 #define MAX_CMD_TURNS   5.0
+
+// PID Parameters
+#define KP 10.0
+#define KI 0.1
+#define KD 0.01
+// Saturation
+#define MAX_OUTPUT  5.0
+#define MIN_OUTPUT  0.0
 
 // --- Namespace --- //
 using namespace std;        // std io
@@ -34,6 +44,7 @@ using namespace std;        // std io
 // Topic Names
 const string topic_tag = "/proboscis";
 const string turns_topic_name = "/cmd_turns";
+const string current_topic_name = "/read_currents";
 const string joy_topic_name = "/joy";
 
 // ---  Function Signatures --- //
@@ -45,6 +56,7 @@ class Control_Node
     // - Ros objects - //
     ros::NodeHandle node_handle;
     // Sub & Pub objects
+    ros::Subscriber sub_curr    = node_handle.subscribe(topic_tag + current_topic_name, QUEUE_SIZE, &Control_Node::current_callBack, this);
     ros::Subscriber sub_joy     = node_handle.subscribe(joy_topic_name, QUEUE_SIZE, &Control_Node::joy_callBack, this);
     ros::Publisher  pub_turns   = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + turns_topic_name, QUEUE_SIZE);
     // Timer for main loop
@@ -53,8 +65,12 @@ class Control_Node
     // Turn commands
     std_msgs::Float32MultiArray turn_commands;
 
+    // PID Object
+    PID pid_obj = PID((1/NODE_FREQUENCY), MAX_OUTPUT, MIN_OUTPUT, KP, KD, KI);
+
     // Callbacks (private method)
     void joy_callBack(const sensor_msgs::Joy::ConstPtr& msg);
+    void current_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
 
     public:
         // Constructor

@@ -25,15 +25,19 @@ target_link_libraries(dynamixel_utils ${catkin_LIBRARIES})
 add_library(ros_utils src/dynamixel/ros_utils.cpp)
 target_link_libraries(ros_utils ${catkin_LIBRARIES} dynamixel_utils)
 
+# PID Library
+add_library(pid_utils src/control/pid.cpp)
+target_link_libraries(pid_utils ${catkin_LIBRARIES})
+
 # Control Library
 add_library(control_utils src/control/control_utils.cpp)
-target_link_libraries(control_utils ${catkin_LIBRARIES})
+target_link_libraries(control_utils ${catkin_LIBRARIES} pid_utils)
 
 #### Execs ####
 # Hardware IO Node
 add_executable(motor_io src/dynamixel/motor_io.cpp)
 target_link_libraries(motor_io ${catkin_LIBRARIES} ros_utils)
 
-# Hardware IO Node
+# Controller Node
 add_executable(controller src/control/controller.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES} control_utils)
