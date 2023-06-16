@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     // --- Main Loop --- //
     ros::spin();
 
-    // --- End of Program --- // 
-    ROS_INFO("End of Main");   
+    // --- End of Program --- //
+    ROS_INFO("End of Main");
     return 0;
 }
