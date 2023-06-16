@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- /// Nodes /// -->
+    <!-- Play a rosbag with /joy and /read_currents -->
+    <node pkg="rosbag" type="play" name="player"
+          args="--clock /home/daniele/bagfiles/proboscis/2023-06-15-14-59-40.bag"/>
+
+    <!-- Joystick reader & Motor Writer -->
+    <node name="controller" pkg="proboscis_pkg" type="controller" output="screen"/>
+</launch>

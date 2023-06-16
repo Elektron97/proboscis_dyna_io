@@ -33,7 +33,10 @@ void Control_Node::current_callBack(const std_msgs::Float32MultiArray::ConstPtr&
     // --- Read Current and Implement PID Controller --- //
     for(int i = 0; i < N_MOTORS; i++)
     {
-        turn_commands.data[i] = pid_obj.calculate(ref_currents.data[i], msg->data[i]);      // Fixing dt and gains for every motors
+        if(i + 1 != 5)
+            turn_commands.data[i] = pid_obj.calculate(ref_currents.data[i], msg->data[i]);      // Fixing dt and gains for every motors
+        else
+            continue;
         //ROS_INFO("PID Control Law for Motor %d | turn = %f", i+1, turn_commands.data[i]);
     }
 

@@ -25,9 +25,9 @@
 #define N_BUTTONS       11
 
 // PID Parameters
-#define KP 10.0
+#define KP 5.0
 #define KI 0.1
-#define KD 0.01
+#define KD 0.001
 // Saturation
 #define MAX_OUTPUT  5.0
 #define MIN_OUTPUT  0.0
