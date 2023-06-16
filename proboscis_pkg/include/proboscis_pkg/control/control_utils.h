@@ -24,8 +24,6 @@
 // n° of buttons
 #define N_BUTTONS       11
 
-#define MAX_CMD_TURNS   5.0
-
 // PID Parameters
 #define KP 10.0
 #define KI 0.1
@@ -62,6 +60,8 @@ class Control_Node
     // Timer for main loop
     ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Control_Node::main_loop, this);
 
+    // Desired Current for PID
+    std_msgs::Float32MultiArray ref_currents;
     // Turn commands
     std_msgs::Float32MultiArray turn_commands;
 
