@@ -54,19 +54,13 @@ class Control_Node
     // - Ros objects - //
     ros::NodeHandle node_handle;
     // Sub & Pub objects
-    //ros::Subscriber sub_curr    = node_handle.subscribe(topic_tag + current_topic_name, QUEUE_SIZE, &Control_Node::current_callBack, this);
     ros::Subscriber sub_joy     = node_handle.subscribe(joy_topic_name, QUEUE_SIZE, &Control_Node::joy_callBack, this);
     ros::Publisher  pub_turns   = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + turns_topic_name, QUEUE_SIZE);
     // Timer for main loop
     ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Control_Node::main_loop, this);
 
-    // Desired Current for PID
-    //std_msgs::Float32MultiArray ref_currents;
     // Turn commands
     std_msgs::Float32MultiArray turn_commands;
-
-    // PID Object
-    //PID pid_obj = PID((1/NODE_FREQUENCY), MAX_OUTPUT, MIN_OUTPUT, KP, KD, KI);
 
     // Callbacks (private method)
     void joy_callBack(const sensor_msgs::Joy::ConstPtr& msg);
