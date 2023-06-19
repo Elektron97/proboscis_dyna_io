@@ -13,6 +13,8 @@
 #include "std_msgs/Float32MultiArray.h"
 // PID Library
 #include "pid/pid.h"
+// Math utils
+#include "proboscis_pkg/math/math_utility.h"
 
 // --- Define --- //
 #define NODE_FREQUENCY  30.0
@@ -47,6 +49,7 @@ const string joy_topic_name = "/joy";
 
 // ---  Function Signatures --- //
 void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd, float max_value);
+void cartesian2Polar(float x, float y, float& rho, float& theta);
 
 // ---  Classes --- //
 class Control_Node
@@ -64,7 +67,6 @@ class Control_Node
 
     // Callbacks (private method)
     void joy_callBack(const sensor_msgs::Joy::ConstPtr& msg);
-    void current_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
 
     public:
         // Constructor

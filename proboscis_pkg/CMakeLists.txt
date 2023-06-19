@@ -29,9 +29,13 @@ target_link_libraries(ros_utils ${catkin_LIBRARIES} dynamixel_utils)
 add_library(pid_utils src/control/pid.cpp)
 target_link_libraries(pid_utils ${catkin_LIBRARIES})
 
+# Math Library
+add_library(math_utility src/math/math_utility.cpp)
+target_link_libraries(math_utility ${catkin_LIBRARIES})
+
 # Control Library
 add_library(control_utils src/control/control_utils.cpp)
-target_link_libraries(control_utils ${catkin_LIBRARIES} pid_utils)
+target_link_libraries(control_utils ${catkin_LIBRARIES} math_utility pid_utils)
 
 #### Execs ####
 # Hardware IO Node
