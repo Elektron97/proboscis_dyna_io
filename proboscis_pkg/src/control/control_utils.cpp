@@ -41,17 +41,17 @@ void Control_Node::main_loop(const ros::TimerEvent& event)
 void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd, float max_value)
 {
     // Simple boolean mapping (only for testing)
-    /*for(int i = 0; i < N_MOTORS; i++)
+    for(int i = 0; i < N_MOTORS; i++)
     {   
         if(joystick_input.buttons[i] == 1)
             motor_cmd.data[i] = max_value;
         else
             motor_cmd.data[i] = 0.0;
-    }*/
+    }
 
     // --- Extract Information from LEFT stick --- //
-    float rho, theta;
-    cartesian2Polar(-joystick_input.axes[0], joystick_input.axes[1], rho, theta);
+    //float rho, theta;
+    //cartesian2Polar(-joystick_input.axes[0], joystick_input.axes[1], rho, theta);
     
     // Mapping Bending
     // Including Optimization Tool? -> RobOptim or fmincon() in C++
