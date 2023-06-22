@@ -15,6 +15,12 @@
 #include "pid/pid.h"
 // Math utils
 #include "proboscis_pkg/math/math_utility.h"
+// Optimal Lib
+#include "proboscis_pkg/control/optimal_control_lib.h"
+
+// Ipopt method
+#include <ifopt/problem.h>
+#include <ifopt/ipopt_solver.h>
 
 // --- Define --- //
 #define NODE_FREQUENCY  30.0
@@ -36,6 +42,7 @@
 
 // --- Namespace --- //
 using namespace std;        // std io
+using namespace ifopt;      // optimization library
 
 // --- Enum --- //
 //enum Joystick_Buttons {A, B, X, Y, LB, RB, BACK, START, POWER, L3, R3};
@@ -50,6 +57,8 @@ const string joy_topic_name = "/joy";
 // ---  Function Signatures --- //
 void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& motor_cmd, float max_value);
 void cartesian2Polar(float x, float y, float& rho, float& theta);
+Eigen::VectorXd build_desXi(float rho, float theta, float rt, float lt);
+Eigen::VectorXd solve(Eigen::VectorXd _xi_des);
 
 // ---  Classes --- //
 class Control_Node
