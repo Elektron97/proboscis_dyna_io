@@ -49,10 +49,38 @@ void joy2Motors(sensor_msgs::Joy joystick_input, std_msgs::Float32MultiArray& mo
             motor_cmd.data[i] = 0.0;
     }
 
+    // Clear array
+    /*int i = 0;
+    for(i; i < N_MOTORS; i++)
+    {
+        motor_cmd.data[i] = 0.0;
+    }
+
     // --- Extract Information from LEFT stick --- //
-    //float rho, theta;
-    //cartesian2Polar(-joystick_input.axes[0], joystick_input.axes[1], rho, theta);
+    float rho, theta;
+    cartesian2Polar(-joystick_input.axes[0], joystick_input.axes[1], rho, theta);
     
+    // Including Optimization Tool? Not Working Yet!:(((
     // Mapping Bending
-    // Including Optimization Tool? -> RobOptim or fmincon() in C++
+    // Longitudinal 90° and Longitudinal 30°
+    if((theta >= PI/6.0) && (theta <= PI/2.0))
+    {
+        // 30°
+        motor_cmd.data[2] = (1.1547*rho*cos(theta))*(MAX_OUTPUT/SQRT_2);
+        // 90°
+        motor_cmd.data[0] = (rho*sin(theta) - 0.5774*rho*cos(theta))*(MAX_OUTPUT/SQRT_2);
+    }
+    else if((theta > PI/2.0) && (theta <= PI/2.0 + PI/3.0))
+    {
+        // 90°
+        motor_cmd.data[0] = (rho*sin(theta) + 0.5774*rho*cos(theta))*(MAX_OUTPUT/SQRT_2);
+        // 150°
+        motor_cmd.data[1] = (- 1.1547*rho*cos(theta))*(MAX_OUTPUT/SQRT_2);
+    }
+    else
+    {
+        ROS_ERROR("Currently not implemented");
+    }*/
+
+    return;
 }
