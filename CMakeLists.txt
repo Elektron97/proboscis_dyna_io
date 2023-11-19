@@ -22,10 +22,6 @@ include_directories(
 add_library(ros_utils src/ros_utils.cpp)
 target_link_libraries(ros_utils ${catkin_LIBRARIES})
 
-# PID Library
-add_library(pid_utils src/pid/pid.cpp)
-target_link_libraries(pid_utils ${catkin_LIBRARIES})
-
 #### Execs ####
 # Hardware IO Node
 add_executable(motor_io src/motor_io.cpp)
