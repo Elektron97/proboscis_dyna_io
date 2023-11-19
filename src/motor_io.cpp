@@ -2,8 +2,7 @@
  * Motor Input/Output Node  *
  ****************************/
 // --- Includes --- //
-#include "proboscis_pkg/dynamixel/dynamixel_utils.h"
-#include "proboscis_pkg/dynamixel/ros_utils.h"
+#include "proboscis_dyna_io/ros_utils.h"
 
 // --- Main --- //
 int main(int argc, char** argv)

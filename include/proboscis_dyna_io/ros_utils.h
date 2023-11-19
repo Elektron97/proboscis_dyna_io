@@ -8,7 +8,7 @@
  * Motor Input/Output Node  *
  ****************************/
 // --- Includes --- //
-#include "proboscis_pkg/dynamixel/dynamixel_utils.h"
+#include "ros_dynamixel_pkg/dynamixel_utils.h"
 // msgs
 #include "std_msgs/Float32MultiArray.h"
 
