@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- /// Nodes /// -->
+    <!-- Motor I/O: Visualize only WARN and ERROR print -->
+    <node name="motor_io" pkg="proboscis_pkg" type="motor_io"/>
+    
+    <!-- Joy -->
+    <node name="joy" pkg="joy" type="joy_node"/>
+    
+    <!-- Joystick reader & Motor Writer -->
+    <node name="controller" pkg="proboscis_pkg" type="controller" output="screen"/>
+</launch>
