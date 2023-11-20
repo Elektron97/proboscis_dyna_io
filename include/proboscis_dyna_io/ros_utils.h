@@ -8,7 +8,8 @@
  * Motor Input/Output Node  *
  ****************************/
 // --- Includes --- //
-#include "ros_dynamixel_pkg/dynamixel_utils.h"
+// #include "ros_dynamixel_pkg/dynamixel_utils.h"
+#include "ros_dynamixel_pkg/custom_current_control.h"
 // msgs
 #include "std_msgs/Float32MultiArray.h"
 
@@ -23,7 +24,6 @@ using namespace std;        // std io
 // --- Global Variables --- //
 const string topic_tag = "/proboscis";
 const string torque_topic_name = "/cmd_torque";
-const string turns_topic_name = "/cmd_turns";
 const string current_topic_name = "/read_currents";
 
 // ---  Function Signatures --- //
@@ -34,20 +34,20 @@ class Ros_Dynamixel_Node
     // - Ros objects - //
     ros::NodeHandle node_handle;
     // Sub & Pub objects
-    ros::Subscriber turns_sub   = node_handle.subscribe(topic_tag + turns_topic_name, QUEUE_SIZE, &Ros_Dynamixel_Node::turns_callBack, this);
-    ros::Publisher current_pub  = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + current_topic_name, QUEUE_SIZE);
+    ros::Subscriber torque_sub   = node_handle.subscribe(topic_tag + torque_topic_name, QUEUE_SIZE, &Ros_Dynamixel_Node::torque_callBack, this);
+    // ros::Publisher current_pub  = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + current_topic_name, QUEUE_SIZE);
 
     // Timer
-    ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Ros_Dynamixel_Node::main_loop, this);
+    // ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Ros_Dynamixel_Node::main_loop, this);
 
     // - Dynamixel Object - //
-    ExtPos_Dynamixel dyna_obj   = ExtPos_Dynamixel(N_MOTORS);
+    Current_PID dyna_obj   = Current_PID(N_MOTORS);
 
     // Useful Variables
-    std_msgs::Float32MultiArray motor_currents;
+    // std_msgs::Float32MultiArray motor_currents;
 
     // Callbacks
-    void turns_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
+    void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
     
     public:
         // Constructor
@@ -57,10 +57,10 @@ class Ros_Dynamixel_Node
         ~Ros_Dynamixel_Node();
 
         // Publisher
-        void publish_currents();
+        // void publish_currents();
 
         // Main Loop
-        void main_loop(const ros::TimerEvent& event);
+        // void main_loop(const ros::TimerEvent& event);
 };
 
 
