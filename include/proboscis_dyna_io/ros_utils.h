@@ -25,8 +25,16 @@ using namespace std;        // std io
 const string topic_tag = "/proboscis";
 const string torque_topic_name = "/cmd_torque";
 const string current_topic_name = "/read_currents";
+const string path_name = "Motor_CurrentPID";
 
 // ---  Function Signatures --- //
+template <typename T>
+T my_getParam(ros::NodeHandle node_obj, string param_path)
+{
+    T param_value;
+    node_obj.getParam(param_path, param_value);
+    return param_value;
+}
 
 class Ros_Dynamixel_Node
 {
@@ -41,7 +49,14 @@ class Ros_Dynamixel_Node
     // ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Ros_Dynamixel_Node::main_loop, this);
 
     // - Dynamixel Object - //
-    Current_PID dyna_obj   = Current_PID(N_MOTORS);
+    // Internal PID gains
+    float Kp = my_getParam<float>(node_handle, path_name + "/P");
+    float Ki = my_getParam<float>(node_handle, path_name + "/I");
+    float Kd = my_getParam<float>(node_handle, path_name + "/D");
+
+    // Init Dynamixel Object
+    //Current_PID dyna_obj   = Current_PID(N_MOTORS);
+    Current_PID dyna_obj   = Current_PID(N_MOTORS, Kp, Ki, Kd);
 
     // Useful Variables
     // std_msgs::Float32MultiArray motor_currents;

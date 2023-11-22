@@ -6,8 +6,7 @@
 // --- ROS DYNAMIXEL NODE CLASS --- //
 Ros_Dynamixel_Node::Ros_Dynamixel_Node()
 {
-    // Init FloatMultiArray
-    // motor_currents.data = vector<float>(N_MOTORS);
+    // Constructor
 }
 
 Ros_Dynamixel_Node::~Ros_Dynamixel_Node()

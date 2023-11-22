@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- /// Parameters' Server /// -->
+    <rosparam command="load" file="$(find proboscis_dyna_io)/config/motors_params.yaml"/>
+
     <!-- /// Nodes /// -->
     <!-- Motor I/O: Visualize only WARN and ERROR print -->
     <node name="motor_io" pkg="proboscis_dyna_io" type="motor_io"/>
