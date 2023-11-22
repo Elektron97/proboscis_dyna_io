@@ -6,7 +6,8 @@
 // --- ROS DYNAMIXEL NODE CLASS --- //
 Ros_Dynamixel_Node::Ros_Dynamixel_Node()
 {
-    // Constructor
+    // Init current vector
+    motor_currents.data = std::vector<float>(N_MOTORS);
 }
 
 Ros_Dynamixel_Node::~Ros_Dynamixel_Node()
@@ -23,8 +24,8 @@ void Ros_Dynamixel_Node::torque_callBack(const std_msgs::Float32MultiArray::Cons
     // Verify n of motors
     if(msg->data.size() == N_MOTORS)
     {
-        //Extract array of torques (for now: currents)
-        if(dyna_obj.set_currents(msg->data, ros::Time::now().toSec()))
+        //Extract array of torques (for now: currents) | save for publishing the sensor data
+        if(dyna_obj.set_currents(msg->data, ros::Time::now().toSec(), motor_currents.data))
             ROS_INFO("Torques command written correctly on Dynamixels.");
         else
         {
@@ -39,24 +40,8 @@ void Ros_Dynamixel_Node::torque_callBack(const std_msgs::Float32MultiArray::Cons
     }
 }
 
-/*void Ros_Dynamixel_Node::publish_currents()
-{
-    vector<float> currents(N_MOTORS);
-    if(!dyna_obj.get_currents(currents))
-    {
-        ROS_ERROR("Failed to read currents.");
-        return;
-    }
-    else
-    {
-        motor_currents.data = currents;
-        // Publish only if the reading is ok
-        current_pub.publish(motor_currents);
-    }
-}*/
-
-/*void Ros_Dynamixel_Node::main_loop(const ros::TimerEvent& event)
+void Ros_Dynamixel_Node::main_loop(const ros::TimerEvent& event)
 {
     // Publish /read_currents
-    publish_currents();
-}*/
+    current_pub.publish(motor_currents);
+}

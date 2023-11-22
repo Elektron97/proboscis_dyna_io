@@ -43,10 +43,10 @@ class Ros_Dynamixel_Node
     ros::NodeHandle node_handle;
     // Sub & Pub objects
     ros::Subscriber torque_sub   = node_handle.subscribe(topic_tag + torque_topic_name, QUEUE_SIZE, &Ros_Dynamixel_Node::torque_callBack, this);
-    // ros::Publisher current_pub  = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + current_topic_name, QUEUE_SIZE);
+    ros::Publisher current_pub  = node_handle.advertise<std_msgs::Float32MultiArray>(topic_tag + current_topic_name, QUEUE_SIZE);
 
     // Timer
-    // ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Ros_Dynamixel_Node::main_loop, this);
+    ros::Timer timer_obj        = node_handle.createTimer(ros::Duration(1/NODE_FREQUENCY), &Ros_Dynamixel_Node::main_loop, this);
 
     // - Dynamixel Object - //
     // Internal PID gains
@@ -55,11 +55,11 @@ class Ros_Dynamixel_Node
     float Kd = my_getParam<float>(node_handle, path_name + "/D");
 
     // Init Dynamixel Object
-    //Current_PID dyna_obj   = Current_PID(N_MOTORS);
+    //Current_PID dyna_obj   = Current_PID(N_MOTORS);   // Using after tuning process
     Current_PID dyna_obj   = Current_PID(N_MOTORS, Kp, Ki, Kd);
 
     // Useful Variables
-    // std_msgs::Float32MultiArray motor_currents;
+    std_msgs::Float32MultiArray motor_currents;
 
     // Callbacks
     void torque_callBack(const std_msgs::Float32MultiArray::ConstPtr& msg);
@@ -71,11 +71,8 @@ class Ros_Dynamixel_Node
         // Deconstructor
         ~Ros_Dynamixel_Node();
 
-        // Publisher
-        // void publish_currents();
-
         // Main Loop
-        // void main_loop(const ros::TimerEvent& event);
+        void main_loop(const ros::TimerEvent& event);
 };
 
 
