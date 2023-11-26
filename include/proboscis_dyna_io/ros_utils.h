@@ -8,7 +8,6 @@
  * Motor Input/Output Node  *
  ****************************/
 // --- Includes --- //
-// #include "ros_dynamixel_pkg/dynamixel_utils.h"
 #include "ros_dynamixel_pkg/extpos_dynamixel.h"
 
 // msgs
