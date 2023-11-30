@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- /// Nodes /// -->
     <!-- Motor I/O: Visualize only WARN and ERROR print -->
-    <node name="motor_io" pkg="proboscis_pkg" type="motor_io"/>
-
+    <node name="motor_io" pkg="proboscis_dyna_io" type="motor_io"/>
 </launch>
