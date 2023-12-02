@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+    <arg name="output_mode" default="log"/>
     <!-- Motor I/O: Visualize only WARN and ERROR print -->
-    <node name="motor_io" pkg="proboscis_dyna_io" type="motor_io"/>
+    <node name="motor_io" pkg="proboscis_dyna_io" type="motor_io" output="screen"/>
 </launch>
